@@ -1,0 +1,144 @@
+[
+  {
+    "id": "1",
+    "name": "Downtown Dental",
+    "email": "clinic@example.com",
+    "password": "securepass",
+    "address": "123 Main St, New York, NY",
+    "phone": "(212) 555-1234",
+    "website": "https://downtowndental.com",
+    "city": "New York",
+    "state": "NY",
+    "zipCode": "10001",
+    "location": {
+      "lat": 40.7128,
+      "lng": -74.006
+    },
+    "availableSlots": [
+      "10:00 AM",
+      "11:00 AM"
+    ]
+  },
+  {
+    "id": 2,
+    "email": "test@gmail.com",
+    "password": "test",
+    "name": "test2",
+    "phone": "6023343434",
+    "address": "2400 westbourough blvd",
+    "website": "",
+    "availableSlots": [
+      "4:00 PM"
+    ],
+    "bookedAppointments": [
+      {
+        "timeSlot": "4:00 PM",
+        "patientName": "elon layt",
+        "patientEmail": "elonlay@GMAIL.COM",
+        "patientPhone": "6023345769",
+        "reason": "Cleaning",
+        "paymentMethod": "Cash"
+      },
+      {
+        "timeSlot": "10:00 AM",
+        "patientName": "john lee",
+        "patientEmail": "johnlee@gmail.com",
+        "patientPhone": "6023333345",
+        "reason": "New Patient Exam",
+        "paymentMethod": "Insurance"
+      },
+      {
+        "timeSlot": "9:30 AM",
+        "patientName": "john lee",
+        "patientEmail": "johnlee@gmail.com",
+        "patientPhone": "6023333333",
+        "reason": "New Patient Exam",
+        "paymentMethod": "Insurance"
+      },
+      {
+        "timeSlot": "5:30 AM",
+        "patientName": "test",
+        "patientEmail": "test",
+        "patientPhone": "6034443456",
+        "reason": "New Patient Exam",
+        "paymentMethod": "Insurance"
+      },
+      {
+        "timeSlot": "7:30 AM",
+        "patientName": "test",
+        "patientEmail": "test@gmail.com",
+        "patientPhone": "6034433424",
+        "reason": "New Patient Exam",
+        "paymentMethod": "Insurance"
+      },
+      {
+        "timeSlot": "7:30 AM",
+        "patientName": "john",
+        "patientEmail": "john@gmail.com",
+        "patientPhone": "2342342342",
+        "reason": "New Patient Exam",
+        "paymentMethod": "Insurance"
+      }
+    ],
+    "zipCode": "94015",
+    "state": "ca"
+  },
+  {
+    "id": 3,
+    "email": "test2",
+    "password": "test2",
+    "name": "test2",
+    "phone": "6023333333",
+    "address": "2400 westbourough blvd",
+    "website": "",
+    "zipCode": "94015",
+    "state": "CA",
+    "availableSlots": []
+  },
+  {
+    "id": 4,
+    "email": "test12",
+    "password": "test",
+    "name": "test3",
+    "phone": "6023445766",
+    "address": "2400 westbourough blvd",
+    "website": "",
+    "zipCode": "94015",
+    "state": "CA",
+    "availableSlots": [],
+    "bookedAppointments": [
+      {
+        "timeSlot": "7:30 AM",
+        "patientName": "john",
+        "patientEmail": "john@gmail.com",
+        "patientPhone": "6023345654",
+        "reason": "Emergency",
+        "paymentMethod": "Insurance"
+      },
+      {
+        "timeSlot": "8:00 AM",
+        "patientName": "test",
+        "patientEmail": "test@gmail.com",
+        "patientPhone": "402342342342",
+        "reason": "New Patient Exam",
+        "paymentMethod": "Insurance"
+      },
+      {
+        "timeSlot": "7:30 AM",
+        "patientName": "test",
+        "patientEmail": "test2@gmail.com",
+        "patientPhone": "5943422342",
+        "reason": "New Patient Exam",
+        "paymentMethod": "Insurance"
+      },
+      {
+        "timeSlot": "5:30 AM",
+        "patientName": "name",
+        "patientEmail": "name@gmail.com",
+        "patientPhone": "2342423234",
+        "reason": "New Patient Exam",
+        "paymentMethod": "Cash"
+      }
+    ]
+  }
+]

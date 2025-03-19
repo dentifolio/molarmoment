@@ -1,0 +1,51 @@
+.office-profile-container {
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 8px;
+  background: #fff;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.profile-form label {
+  font-weight: bold;
+  display: block;
+  margin-top: 10px;
+}
+
+.profile-form input, .profile-form select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.zip-state {
+  display: flex;
+  justify-content: space-between;
+}
+
+.zip-state div {
+  width: 48%;
+}
+
+.save-btn {
+  margin-top: 15px;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.save-btn:hover {
+  background-color: #0056b3;
+}
+
+.status-message {
+  color: green;
+  font-weight: bold;
+  margin-top: 10px;
+}
