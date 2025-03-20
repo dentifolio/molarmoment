@@ -9,7 +9,7 @@ const SearchBar = ({ setOffices }) => {
         if (!zipCode) return alert("Enter a ZIP code");
 
         try {
-            const response = await axios.post("http://localhost:10000/search-offices", { zipCode, radius });
+            const response = await axios.post("http://findopendentist.onrender.com/search-offices", { zipCode, radius });
             setOffices(response.data);
         } catch (error) {
             console.error("Search error:", error);

@@ -14,7 +14,7 @@ const Login = ({ onLogin }) => {
   const handleLogin = async () => {
     try {
       console.log("Attempting login with:", email, password);
-      const response = await axios.post("http://localhost:10000/login", { email, password });
+      const response = await axios.post("http://findopendentist.onrender.com/login", { email, password });
       console.log("Server response:", response.data);
 
       if (response.data.success) {
@@ -37,7 +37,7 @@ const Login = ({ onLogin }) => {
     }
 
     try {
-      const response = await axios.post("http://localhost:10000/forgot-password", { email });
+      const response = await axios.post("http://findopendentist.onrender.com/forgot-password", { email });
       setMessage(response.data.message);
       setError("");
     } catch (error) {

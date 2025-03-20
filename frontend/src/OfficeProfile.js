@@ -28,7 +28,7 @@ const OfficeProfile = ({ office, setOffice }) => {
 
   const handleSave = async () => {
     try {
-      const response = await axios.post("http://localhost:10000/update-office", {
+      const response = await axios.post("http://findopendentist.onrender.com/update-office", {
         email: formData.email,
         ...formData,
       });
