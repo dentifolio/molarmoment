@@ -41,7 +41,7 @@ const PublicMapView = () => {
 
   const fetchOffices = async () => {
     try {
-      const response = await axios.get("http://findopendentist.onrender.com/active-offices");
+      const response = await axios.get("https://findopendentist.onrender.com/active-offices");
       const filteredOffices = response.data.filter((office) => office.availableSlots.length > 0);
       setOffices(filteredOffices);
     } catch (error) {
@@ -66,7 +66,7 @@ const PublicMapView = () => {
 
   const searchOffices = async () => {
     try {
-      const response = await axios.get("http://findopendentist.onrender.com/search-offices", {
+      const response = await axios.get("https://findopendentist.onrender.com/search-offices", {
         params: { zipCode, radius },
       });
 
