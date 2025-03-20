@@ -9,8 +9,36 @@ const app = express();
 const server = require("http").createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const { db } = require("./firebaseAdmin");
+const express = require("express");
+const app = express();
+
+app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
+
+// Book an appointment
+app.post("/book-slot", async (req, res) => {
+  const { officeId, timeSlot, patientName, patientEmail, patientPhone, reason, paymentMethod } = req.body;
+
+  try {
+    const appointmentRef = db.collection("appointments").doc();
+    await appointmentRef.set({
+      officeId,
+      timeSlot,
+      patientName,
+      patientEmail,
+      patientPhone,
+      reason,
+      paymentMethod,
+      createdAt: new Date(),
+    });
+
+    res.json({ success: true, message: "Appointment booked successfully!" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error booking appointment", error });
+  }
+});
 
 // ✅ **Load Offices from a File**
 const loadOffices = () => {
@@ -153,15 +181,26 @@ app.get("/active-offices", (req, res) => {
 });
 
 // 🔹 **Fetch Appointments for Office**
-app.get("/appointments", (req, res) => {
-  const { officeId } = req.query;
-  const office = offices.find(o => o.id === Number(officeId));
+//app.get("/appointments", (req, res) => {
+//  const { officeId } = req.query;
+//  const office = offices.find(o => o.id === Number(officeId));
 
-  if (!office) {
-    return res.status(404).json({ message: "Office not found" });
+//  if (!office) {
+//    return res.status(404).json({ message: "Office not found" });
+//  }
+
+//  res.json(office.bookedAppointments || []);
+//});
+
+app.get("/appointments", async (req, res) => {
+  try {
+    const snapshot = await db.collection("appointments").get();
+    const appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    res.json(appointments);
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching appointments", error });
   }
-
-  res.json(office.bookedAppointments || []);
 });
 
 // 🔹 **Update Office Information**
