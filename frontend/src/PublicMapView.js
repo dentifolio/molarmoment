@@ -41,7 +41,7 @@ const PublicMapView = () => {
 
   const fetchOffices = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/active-offices");
+      const response = await axios.get("http://localhost:10000/active-offices");
       const filteredOffices = response.data.filter((office) => office.availableSlots.length > 0);
       setOffices(filteredOffices);
     } catch (error) {
@@ -66,7 +66,7 @@ const PublicMapView = () => {
 
   const searchOffices = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/search-offices", {
+      const response = await axios.get("http://localhost:10000/search-offices", {
         params: { zipCode, radius },
       });
 

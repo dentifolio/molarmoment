@@ -43,7 +43,7 @@ const statesList = [
 
   const fetchAppointments = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/appointments?officeId=${user.id}`);
+      const response = await axios.get(`http://localhost:10000/appointments?officeId=${user.id}`);
       if (response.data.length > 0) {
         setAppointments(response.data);  // ✅ Update UI with latest bookings
       } else {
@@ -56,7 +56,7 @@ const statesList = [
 
   const updateOfficeInfo = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/update-office-info", updatedInfo);
+      const response = await axios.post("http://localhost:10000/update-office-info", updatedInfo);
 
       if (response.data.success) {
         alert("✅ Office info updated successfully!");
@@ -76,7 +76,7 @@ const statesList = [
       : [...availableSlots, slot];
 
     try {
-      const response = await axios.post("http://localhost:5000/update-availability", {
+      const response = await axios.post("http://localhost:10000/update-availability", {
         email: user.email,
         availableSlots: updatedSlots,
       });

@@ -8,7 +8,7 @@ const BookingModal = ({ office, onClose }) => {
         if (!selectedSlot) return alert("Select a time slot");
 
         try {
-            await axios.post("http://localhost:5000/book-appointment", {
+            await axios.post("http://localhost:10000/book-appointment", {
                 officeId: office.id,
                 timeSlot: selectedSlot
             });

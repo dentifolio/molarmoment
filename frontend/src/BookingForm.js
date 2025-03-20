@@ -24,7 +24,7 @@ const BookingForm = ({ office, onClose }) => {
     const finalReason = reason === "Other" ? otherReason : reason;
 
     try {
-      const response = await axios.post("http://localhost:5000/book-slot", {
+      const response = await axios.post("http://localhost:10000/book-slot", {
         officeId: office.id,
         timeSlot: selectedTime,
         patientName,
