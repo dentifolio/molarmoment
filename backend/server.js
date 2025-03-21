@@ -130,6 +130,39 @@ app.get("/active-offices", async (req, res) => {
   }
 });
 
+// ✅ **Find Offices by ZIP & Radius**
+app.get("/search-offices", async (req, res) => {
+  try {
+    const { zipCode, radius } = req.query;
+
+    if (!zipCode || !radius) {
+      return res.status(400).json({ message: "ZIP code and radius are required." });
+    }
+
+    // Fetch offices from Firestore
+    const snapshot = await db.collection("offices").get();
+    const offices = snapshot.docs.map(doc => doc.data());
+
+    // Filter offices by distance
+    const userLocation = zipcodes.lookup(zipCode);
+    if (!userLocation) {
+      return res.status(400).json({ message: "Invalid ZIP code" });
+    }
+
+    const nearbyOffices = offices.filter(office => {
+      const officeLocation = zipcodes.lookup(office.zipCode);
+      if (!officeLocation) return false;
+      const distance = zipcodes.distance(zipCode, office.zipCode);
+      return distance <= parseInt(radius);
+    });
+
+    res.json(nearbyOffices);
+  } catch (error) {
+    console.error("❌ Error fetching offices:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // ✅ **Fetch Appointments for Office**
 app.get("/appointments", async (req, res) => {
   try {

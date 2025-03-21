@@ -64,28 +64,30 @@ const PublicMapView = () => {
     return null;
   };
 
+  const API_BASE_URL = "https://findopendentist.onrender.com"; // ✅ Ensure this is correct
+
   const searchOffices = async () => {
-    try {
-      const response = await axios.get("https://findopendentist.onrender.com/search-offices", {
-        params: { zipCode, radius },
-      });
+  try {
+    const response = await axios.get(`${API_BASE_URL}/search-offices`, {
+      params: { zipCode, radius },
+    });
 
-      const filteredOffices = response.data.filter((office) => office.availableSlots.length > 0);
-      setOffices(filteredOffices);
+    const filteredOffices = response.data.filter((office) => office.availableSlots.length > 0);
+    setOffices(filteredOffices);
 
-      const location = await geocodeZipCode(zipCode);
-      if (location) {
-        setCenter(location);
-        setSearchedLocation(location);
-      }
-
-      if (filteredOffices.length === 0) {
-        alert("No available appointments found in this area.");
-      }
-    } catch (error) {
-      console.error("Error searching offices:", error);
+    const location = await geocodeZipCode(zipCode);
+    if (location) {
+      setCenter(location);
+      setSearchedLocation(location);
     }
-  };
+
+    if (filteredOffices.length === 0) {
+      alert("No available appointments found in this area.");
+    }
+  } catch (error) {
+    console.error("❌ Error searching offices:", error);
+  }
+};
 
   const openBookingForm = (office, timeSlot) => {
     setSelectedOffice(office);
