@@ -31,7 +31,7 @@ const Signup = () => {
 
   const handleSignup = async () => {
     try {
-      const response = await axios.post("http://findopendentist.onrender.com/signup", formData);
+      const response = await axios.post("https://findopendentist.onrender.com/signup", formData);
       console.log("Signup successful:", response.data);
       navigate("/login");
     } catch (error) {
