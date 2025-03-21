@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import BookingForm from "./BookingForm";
-import { MapPin, Mail, Phone } from "lucide-react"; // ✅ Import Lucide Icons
+import { MapPin, Mail, Phone } from "lucide-react"; // ✅ Import Icons
 
 const API_BASE_URL = "https://findopendentist.onrender.com"; // ✅ Ensure this is correct
 
@@ -30,20 +30,6 @@ const PublicMapView = () => {
     }
   };
 
-  const geocodeZipCode = async (zip) => {
-    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${zip}&key=YOUR_GOOGLE_MAPS_API_KEY`;
-
-    try {
-      const response = await axios.get(geocodeUrl);
-      if (response.data.results.length > 0) {
-        return response.data.results[0].geometry.location;
-      }
-    } catch (error) {
-      console.error("❌ Error fetching ZIP code location:", error);
-    }
-    return null;
-  };
-
   const searchOffices = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/search-offices`, {
@@ -53,24 +39,12 @@ const PublicMapView = () => {
       const filteredOffices = response.data.filter((office) => office.availableSlots.length > 0);
       setOffices(filteredOffices);
 
-      const location = await geocodeZipCode(zipCode);
-      if (location) {
-        setCenter(location);
-        setSearchedLocation(location);
-      }
-
       if (filteredOffices.length === 0) {
         alert("No available appointments found in this area.");
       }
     } catch (error) {
       console.error("❌ Error searching offices:", error);
     }
-  };
-
-  const openBookingForm = (office, timeSlot) => {
-    setSelectedOffice(office);
-    setSelectedTimeSlot(timeSlot);
-    setShowBookingForm(true);
   };
 
   return (
@@ -142,7 +116,6 @@ const PublicMapView = () => {
                     {office.availableSlots.map((slot, index) => (
                       <button
                         key={index}
-                        onClick={() => openBookingForm(office, slot)}
                         className="px-4 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition"
                       >
                         {slot}
@@ -159,7 +132,7 @@ const PublicMapView = () => {
 
         {/* Google Map Section */}
         <div className="w-full md:w-2/3 h-[60vh] md:h-full">
-          <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY">
+          <LoadScript googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0">
             <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={center} zoom={12}>
               {offices.map((office) =>
                 office.location ? (
