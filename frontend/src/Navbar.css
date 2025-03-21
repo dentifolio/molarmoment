@@ -1,9 +1,9 @@
-/* Navbar Styling */
+/* ✅ Navbar Styling */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 10px;
+  padding: 12px 20px;
   background-color: #007bff;
   color: white;
   position: fixed;
@@ -14,20 +14,27 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Left logo */
+/* ✅ Left Side - Logo */
 .nav-left .logo {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: bold;
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-/* Auth bubble placement */
+.nav-left .logo:hover {
+  opacity: 0.8;
+}
+
+/* ✅ Right Side - Auth Buttons */
 .nav-right {
-  position: absolute;
-  top: 15px;
-  right: 30px;
+  display: flex;
+  align-items: center;
 }
 
-/* Bubble-style auth section */
+/* ✅ Auth Bubble Styling */
 .auth-bubble {
   background: white;
   padding: 8px 15px;
@@ -38,25 +45,27 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
-/* Login & Signup links */
+/* ✅ Login & Signup Links */
 .auth-bubble .nav-link {
   color: #007bff;
   text-decoration: none;
   font-weight: bold;
   font-size: 16px;
+  transition: 0.3s;
 }
 
 .auth-bubble .nav-link:hover {
   text-decoration: underline;
+  color: #0056b3;
 }
 
-/* Separator between Login and Signup */
+/* ✅ Separator Between Login & Signup */
 .separator {
   color: #007bff;
   font-weight: bold;
 }
 
-/* Logout button */
+/* ✅ Logout Button */
 .logout-btn {
   padding: 8px 15px;
   background-color: #ff4d4d;
@@ -72,23 +81,13 @@
   background-color: #d43f3f;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  text-decoration: none;
-  color: white;
-  cursor: pointer;
-}
-
-.logo:hover {
-  opacity: 0.8;
-}
-
+/* ✅ Auth Buttons */
 .auth-buttons {
   display: flex;
   gap: 10px;
 }
 
+/* ✅ Login & Sign-Up Button Styling */
 .auth-btn {
   background-color: white;
   color: #007bff;
@@ -105,6 +104,7 @@
   color: white;
 }
 
+/* ✅ Logout Button Styling */
 .logout-btn {
   background-color: #dc3545;
   color: white;
@@ -118,4 +118,33 @@
 
 .logout-btn:hover {
   background-color: #c82333;
+}
+
+/* ✅ Responsive Fixes for Mobile */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .nav-left {
+    margin-bottom: 10px;
+  }
+
+  .nav-right {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .auth-bubble {
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+  }
+}
+
+/* ✅ Prevent content from going under the navbar */
+body {
+  padding-top: 60px;
 }

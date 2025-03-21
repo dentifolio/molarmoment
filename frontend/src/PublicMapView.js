@@ -50,15 +50,7 @@ const PublicMapView = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* ✅ Navigation Bar (Logo + Login + Sign Up) */}
-      <nav className="w-full bg-blue-500 text-white py-4 px-6 shadow-md">
-        <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold">FindOpenDentist.com</h1>
-          <div className="flex space-x-4">
-            <button className="px-4 py-2 bg-white text-blue-500 rounded hover:bg-gray-100 transition">Login</button>
-            <button className="px-4 py-2 bg-white text-blue-500 rounded hover:bg-gray-100 transition">Sign Up</button>
-          </div>
-        </div>
-      </nav>
+
 
       {/* ✅ Main Content */}
       <div className="flex flex-col md:flex-row flex-grow">
