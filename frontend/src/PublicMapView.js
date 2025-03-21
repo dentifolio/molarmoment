@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import BookingForm from "./BookingForm";
-import { MapPin, Mail, Phone } from "lucide-react"; // ✅ Import Icons
+import { MapPin, Mail, Phone } from "lucide-react"; // ✅ Import Lucide Icons
 
 const API_BASE_URL = "https://findopendentist.onrender.com"; // ✅ Ensure this is correct
 
@@ -49,8 +49,8 @@ const PublicMapView = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Sticky Header */}
-      <header className="w-full bg-blue-500 text-white py-4 px-6 fixed top-0 left-0 z-50 shadow-md">
+      {/* ✅ Navigation Bar (Logo + Login + Sign Up) */}
+      <nav className="w-full bg-blue-500 text-white py-4 px-6 shadow-md">
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-bold">FindOpenDentist.com</h1>
           <div className="flex space-x-4">
@@ -58,11 +58,11 @@ const PublicMapView = () => {
             <button className="px-4 py-2 bg-white text-blue-500 rounded hover:bg-gray-100 transition">Sign Up</button>
           </div>
         </div>
-      </header>
+      </nav>
 
-      {/* Main Content */}
-      <div className="flex flex-col md:flex-row flex-grow mt-16">
-        {/* Sidebar Section */}
+      {/* ✅ Main Content */}
+      <div className="flex flex-col md:flex-row flex-grow">
+        {/* ✅ Sidebar Section */}
         <div className="w-full md:w-1/3 p-4 bg-gray-100 shadow-lg overflow-y-auto">
           <h2 className="text-xl font-semibold mb-2 text-gray-800">Find Available Appointments</h2>
           <p className="text-gray-600 mb-3">Enter your ZIP code and select a search radius to find available dentists.</p>
@@ -90,7 +90,7 @@ const PublicMapView = () => {
             Search
           </button>
 
-          {/* Available Appointments List */}
+          {/* ✅ Available Appointments List */}
           <h3 className="text-lg font-medium mt-4">Available Appointments:</h3>
           {offices.length > 0 ? (
             offices.map((office) => (
@@ -109,7 +109,7 @@ const PublicMapView = () => {
                   <a href={`mailto:${office.email}`} className="text-blue-600">{office.email}</a>
                 </p>
 
-                {/* Time Slots */}
+                {/* ✅ Time Slots */}
                 <div className="mt-2">
                   <h5 className="text-gray-700 font-semibold">Available Time Slots:</h5>
                   <div className="flex flex-wrap gap-2 mt-1">
@@ -130,7 +130,7 @@ const PublicMapView = () => {
           )}
         </div>
 
-        {/* Google Map Section */}
+        {/* ✅ Google Map Section (Fixed issue with missing map) */}
         <div className="w-full md:w-2/3 h-[60vh] md:h-full">
           <LoadScript googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0">
             <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={center} zoom={12}>
