@@ -51,7 +51,7 @@ const PublicMapView = () => {
     <div className="flex flex-col h-screen">
       {/* ✅ Navigation Bar (Logo + Login + Sign Up) */}
       <div className="w-full md:w-2/3 h-[60vh] md:h-full">
-        <LoadScript googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0">
+        <LoadScript googleMapsApiKey="AIzaSyAdd8rcTdQ2EOMB-4qUwthsqXSVEwSEW1I">
           <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={center} zoom={12}>
             {offices.map((office) =>
               office.location ? (
@@ -150,7 +150,7 @@ const PublicMapView = () => {
 
         {/* ✅ Google Map Section (Fixed issue with missing map) */}
         <div className="w-full md:w-2/3 h-[60vh] md:h-full">
-          <LoadScript googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0">
+          <LoadScript googleMapsApiKey="AIzaSyAdd8rcTdQ2EOMB-4qUwthsqXSVEwSEW1I">
             <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={center} zoom={12}>
               {offices.map((office) =>
                 office.location ? (
