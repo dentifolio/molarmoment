@@ -2,35 +2,16 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import BookingForm from "./BookingForm";
+import { MapPin, Mail, Phone } from "lucide-react"; // ✅ Import Lucide Icons
 
-const containerStyle = {
-  display: "flex",
-  flexDirection: "row",
-  height: "100vh",
-  width: "100vw",
-};
-
-const sidebarStyle = {
-  width: "30%",
-  maxWidth: "400px",
-  minWidth: "300px",
-  padding: "20px",
-  overflowY: "auto",
-  backgroundColor: "#f8f9fa",
-  borderRight: "2px solid #ddd",
-};
-
-const mapStyle = {
-  flex: 1,
-  height: "100%",
-};
+const API_BASE_URL = "https://findopendentist.onrender.com"; // ✅ Ensure this is correct
 
 const PublicMapView = () => {
   const [offices, setOffices] = useState([]);
   const [selectedOffice, setSelectedOffice] = useState(null);
   const [zipCode, setZipCode] = useState("");
   const [radius, setRadius] = useState(5);
-  const [center, setCenter] = useState({ lat: 37.7749, lng: -122.4194 }); // 📌 Default to San Francisco
+  const [center, setCenter] = useState({ lat: 37.7749, lng: -122.4194 }); // 📌 Default: San Francisco
   const [searchedLocation, setSearchedLocation] = useState(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
@@ -41,53 +22,50 @@ const PublicMapView = () => {
 
   const fetchOffices = async () => {
     try {
-      const response = await axios.get("https://findopendentist.onrender.com/active-offices");
+      const response = await axios.get(`${API_BASE_URL}/active-offices`);
       const filteredOffices = response.data.filter((office) => office.availableSlots.length > 0);
       setOffices(filteredOffices);
     } catch (error) {
-      console.error("Error fetching offices:", error);
+      console.error("❌ Error fetching offices:", error);
     }
   };
 
   const geocodeZipCode = async (zip) => {
-    const apiKey = "AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0"; // Replace with your actual API Key
-    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${zip}&key=${apiKey}`;
+    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${zip}&key=YOUR_GOOGLE_MAPS_API_KEY`;
 
     try {
       const response = await axios.get(geocodeUrl);
       if (response.data.results.length > 0) {
-        return response.data.results[0].geometry.location; // Returns { lat, lng }
+        return response.data.results[0].geometry.location;
       }
     } catch (error) {
-      console.error("Error fetching ZIP code location:", error);
+      console.error("❌ Error fetching ZIP code location:", error);
     }
     return null;
   };
 
-  const API_BASE_URL = "https://findopendentist.onrender.com"; // ✅ Ensure this is correct
-
   const searchOffices = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/search-offices`, {
-      params: { zipCode, radius },
-    });
+    try {
+      const response = await axios.get(`${API_BASE_URL}/search-offices`, {
+        params: { zipCode, radius },
+      });
 
-    const filteredOffices = response.data.filter((office) => office.availableSlots.length > 0);
-    setOffices(filteredOffices);
+      const filteredOffices = response.data.filter((office) => office.availableSlots.length > 0);
+      setOffices(filteredOffices);
 
-    const location = await geocodeZipCode(zipCode);
-    if (location) {
-      setCenter(location);
-      setSearchedLocation(location);
+      const location = await geocodeZipCode(zipCode);
+      if (location) {
+        setCenter(location);
+        setSearchedLocation(location);
+      }
+
+      if (filteredOffices.length === 0) {
+        alert("No available appointments found in this area.");
+      }
+    } catch (error) {
+      console.error("❌ Error searching offices:", error);
     }
-
-    if (filteredOffices.length === 0) {
-      alert("No available appointments found in this area.");
-    }
-  } catch (error) {
-    console.error("❌ Error searching offices:", error);
-  }
-};
+  };
 
   const openBookingForm = (office, timeSlot) => {
     setSelectedOffice(office);
@@ -96,103 +74,118 @@ const PublicMapView = () => {
   };
 
   return (
-    <div style={containerStyle}>
-      {/* Sidebar */}
-      <div style={sidebarStyle}>
-        <img src="/banner.jpg" alt="Find a Dentist" style={{ width: "100%", marginBottom: "10px", marginTop: "30px" }} />
-        <h2>Find Available Appointments</h2>
-        <p>Enter your ZIP code and select a search radius to find dentists with open time slots.</p>
+    <div className="flex flex-col h-screen">
+      {/* Sticky Header */}
+      <header className="w-full bg-blue-500 text-white py-4 px-6 fixed top-0 left-0 z-50 shadow-md">
+        <div className="flex justify-between items-center">
+          <h1 className="text-xl font-bold">FindOpenDentist.com</h1>
+          <div className="flex space-x-4">
+            <button className="px-4 py-2 bg-white text-blue-500 rounded hover:bg-gray-100 transition">Login</button>
+            <button className="px-4 py-2 bg-white text-blue-500 rounded hover:bg-gray-100 transition">Sign Up</button>
+          </div>
+        </div>
+      </header>
 
-        <input
-          type="text"
-          placeholder="Enter ZIP Code"
-          value={zipCode}
-          onChange={(e) => setZipCode(e.target.value)}
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-        />
-        <select value={radius} onChange={(e) => setRadius(e.target.value)} style={{ width: "100%", padding: "8px" }}>
-          <option value={1}>1 Mile</option>
-          <option value={5}>5 Miles</option>
-          <option value={10}>10 Miles</option>
-        </select>
-        <button onClick={searchOffices} style={{ width: "100%", marginTop: "10px", padding: "10px", backgroundColor: "#007bff", color: "white", border: "none" }}>
-          Search
-        </button>
+      {/* Main Content */}
+      <div className="flex flex-col md:flex-row flex-grow mt-16">
+        {/* Sidebar Section */}
+        <div className="w-full md:w-1/3 p-4 bg-gray-100 shadow-lg overflow-y-auto">
+          <h2 className="text-xl font-semibold mb-2 text-gray-800">Find Available Appointments</h2>
+          <p className="text-gray-600 mb-3">Enter your ZIP code and select a search radius to find available dentists.</p>
 
-        <h4>Available Appointments:</h4>
-        {offices.length > 0 ? (
-          offices.map((office) => (
-            <div key={office.id} style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-              <strong>{office.name}</strong>
-              <p>{office.address}</p>
-              <p>{office.city}, {office.state} {office.zipCode}</p>
-              <p><strong>Phone:</strong> {office.phone}</p>
-              <p><strong>Email:</strong> <a href={`mailto:${office.email}`}>{office.email}</a></p>
+          <input
+            type="text"
+            placeholder="Enter ZIP Code"
+            value={zipCode}
+            onChange={(e) => setZipCode(e.target.value)}
+            className="w-full p-2 border rounded mb-2"
+          />
+          <select
+            value={radius}
+            onChange={(e) => setRadius(e.target.value)}
+            className="w-full p-2 border rounded"
+          >
+            <option value={1}>1 Mile</option>
+            <option value={5}>5 Miles</option>
+            <option value={10}>10 Miles</option>
+          </select>
+          <button
+            onClick={searchOffices}
+            className="w-full mt-2 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          >
+            Search
+          </button>
 
-              <p><strong>Available Time Slots:</strong></p>
-              {office.availableSlots.map((slot, index) => (
-                <button
-                  key={index}
-                  onClick={() => openBookingForm(office, slot)}
-                  style={{
-                    margin: "5px",
-                    padding: "8px",
-                    backgroundColor: "#28a745",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                  }}
-                >
-                  {slot}
-                </button>
-              ))}
-            </div>
-          ))
-        ) : (
-          <p>No available appointments found.</p>
-        )}
-      </div>
+          {/* Available Appointments List */}
+          <h3 className="text-lg font-medium mt-4">Available Appointments:</h3>
+          {offices.length > 0 ? (
+            offices.map((office) => (
+              <div key={office.id} className="p-4 border-b bg-white shadow-md rounded-lg my-2">
+                <h4 className="text-md font-semibold text-gray-900">{office.name}</h4>
+                <p className="text-sm flex items-center text-gray-600">
+                  <MapPin size={16} className="mr-2 text-blue-500" />
+                  {office.address}, {office.city}, {office.state}
+                </p>
+                <p className="text-sm flex items-center text-gray-600">
+                  <Phone size={16} className="mr-2 text-green-500" />
+                  {office.phone}
+                </p>
+                <p className="text-sm flex items-center text-gray-600">
+                  <Mail size={16} className="mr-2 text-red-500" />
+                  <a href={`mailto:${office.email}`} className="text-blue-600">{office.email}</a>
+                </p>
 
-      {/* Google Map */}
-      <div style={mapStyle}>
-        <LoadScript googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0">
-          <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={center} zoom={12}>
-            {/* Office Markers */}
-            {offices.map((office) =>
-              office.location ? (
-                <Marker key={office.id} position={office.location} onClick={() => setSelectedOffice(office)} />
-              ) : null
-            )}
-
-            {/* Searched Location Marker */}
-            {searchedLocation && (
-              <Marker
-                position={searchedLocation}
-                icon={{
-                  url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                }}
-              />
-            )}
-
-            {/* Selected Office Info Window */}
-            {selectedOffice && selectedOffice.location && (
-              <InfoWindow position={selectedOffice.location} onCloseClick={() => setSelectedOffice(null)}>
-                <div>
-                  <h3>{selectedOffice.name}</h3>
-                  <p>{selectedOffice.address}</p>
-                  <p>{selectedOffice.city}, {selectedOffice.state}, {selectedOffice.zipCode}</p>
-                  <p><strong>Phone:</strong> {selectedOffice.phone}</p>
-                  <p><strong>Email:</strong> <a href={`mailto:${selectedOffice.email}`}>{selectedOffice.email}</a></p>
+                {/* Time Slots */}
+                <div className="mt-2">
+                  <h5 className="text-gray-700 font-semibold">Available Time Slots:</h5>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {office.availableSlots.map((slot, index) => (
+                      <button
+                        key={index}
+                        onClick={() => openBookingForm(office, slot)}
+                        className="px-4 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition"
+                      >
+                        {slot}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </InfoWindow>
-            )}
-          </GoogleMap>
-        </LoadScript>
-      </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 text-sm mt-2">No available appointments found.</p>
+          )}
+        </div>
 
-      {/* Booking Form */}
-      {showBookingForm && <BookingForm office={selectedOffice} timeSlot={selectedTimeSlot} onClose={() => setShowBookingForm(false)} />}
+        {/* Google Map Section */}
+        <div className="w-full md:w-2/3 h-[60vh] md:h-full">
+          <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY">
+            <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={center} zoom={12}>
+              {offices.map((office) =>
+                office.location ? (
+                  <Marker key={office.id} position={office.location} onClick={() => setSelectedOffice(office)} />
+                ) : null
+              )}
+
+              {searchedLocation && (
+                <Marker
+                  position={searchedLocation}
+                  icon={{ url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" }}
+                />
+              )}
+
+              {selectedOffice && selectedOffice.location && (
+                <InfoWindow position={selectedOffice.location} onCloseClick={() => setSelectedOffice(null)}>
+                  <div>
+                    <h3 className="text-md font-semibold">{selectedOffice.name}</h3>
+                    <p className="text-sm">{selectedOffice.address}</p>
+                  </div>
+                </InfoWindow>
+              )}
+            </GoogleMap>
+          </LoadScript>
+        </div>
+      </div>
     </div>
   );
 };
