@@ -179,6 +179,26 @@ app.get("/appointments", async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching appointments", error });
   }
 });
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const snapshot = await db.collection("offices").where("email", "==", email).get();
+    if (snapshot.empty) {
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
+
+    const office = snapshot.docs[0].data();
+    if (office.password !== password) {
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
+
+    res.json({ success: true, office });
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).json({ success: false, message: "Error during login", error });
+  }
+});
 
 // ✅ **Update Office Information**
 app.post("/update-office-info", async (req, res) => {
