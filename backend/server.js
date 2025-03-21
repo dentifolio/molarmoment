@@ -5,6 +5,7 @@ const fs = require("fs");
 const zipcodes = require("zipcodes");
 const WebSocket = require("ws");
 const { db } = require("./firebaseAdmin"); // Firebase Firestore
+const API_BASE_URL = "https://findopendentist.onrender.com"; // ✅ Ensure HTTPS is used
 
 const app = express();
 const server = require("http").createServer(app);
@@ -26,6 +27,10 @@ const resetDailyAppointments = async () => {
     console.error("❌ Error clearing appointments:", error);
   }
 };
+
+const response = await axios.post(`${API_BASE_URL}/signup`, {
+  email, password, name, phone, address, website, zipCode, state
+});
 
 // ✅ **Schedule Daily Reset at Midnight**
 const scheduleDailyReset = () => {
