@@ -28,9 +28,6 @@ const resetDailyAppointments = async () => {
   }
 };
 
-const response = await axios.post(`${API_BASE_URL}/signup`, {
-  email, password, name, phone, address, website, zipCode, state
-});
 
 // ✅ **Schedule Daily Reset at Midnight**
 const scheduleDailyReset = () => {
