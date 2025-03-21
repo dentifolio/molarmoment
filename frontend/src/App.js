@@ -5,6 +5,7 @@ import OfficeDashboard from "./OfficeDashboard";
 import Login from "./Login";
 import Signup from "./Signup";
 import Navbar from "./Navbar";
+import "./styles.css";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

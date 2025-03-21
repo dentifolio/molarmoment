@@ -50,7 +50,33 @@ const PublicMapView = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* ✅ Navigation Bar (Logo + Login + Sign Up) */}
+      <div className="w-full md:w-2/3 h-[60vh] md:h-full">
+        <LoadScript googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0">
+          <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={center} zoom={12}>
+            {offices.map((office) =>
+              office.location ? (
+                <Marker key={office.id} position={office.location} onClick={() => setSelectedOffice(office)} />
+              ) : null
+            )}
 
+            {searchedLocation && (
+              <Marker
+                position={searchedLocation}
+                icon={{ url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" }}
+              />
+            )}
+
+            {selectedOffice && selectedOffice.location && (
+              <InfoWindow position={selectedOffice.location} onCloseClick={() => setSelectedOffice(null)}>
+                <div>
+                  <h3 className="text-md font-semibold">{selectedOffice.name}</h3>
+                  <p className="text-sm">{selectedOffice.address}</p>
+                </div>
+              </InfoWindow>
+            )}
+          </GoogleMap>
+        </LoadScript>
+      </div>
 
       {/* ✅ Main Content */}
       <div className="flex flex-col md:flex-row flex-grow">
