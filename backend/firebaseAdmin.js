@@ -8,3 +8,5 @@ admin.initializeApp({
 
 const db = admin.firestore();
 module.exports = { db };
+
+console.log("✅ Firebase Admin SDK connected");
