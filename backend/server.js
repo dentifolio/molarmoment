@@ -60,6 +60,39 @@ const broadcastUpdate = async () => {
   }
 };
 
+app.post("/signup", async (req, res) => {
+  const { email, password, name, phone, address, website, zipCode, state } = req.body;
+
+  try {
+    const existingUser = await db.collection("offices").where("email", "==", email).get();
+    if (!existingUser.empty) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    const newOffice = {
+      email,
+      password,
+      name,
+      phone,
+      address,
+      website,
+      zipCode,
+      state,
+      availableSlots: [],
+      bookedAppointments: [],
+      createdAt: new Date(),
+    };
+
+    await db.collection("offices").add(newOffice);
+
+    console.log("✅ New office registered:", newOffice);
+    res.status(201).json({ success: true, office: newOffice });
+  } catch (error) {
+    console.error("❌ Error in signup:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // ✅ **Book an Appointment**
 app.post("/book-slot", async (req, res) => {
   const { officeId, timeSlot, patientName, patientEmail, patientPhone, reason, paymentMethod } = req.body;
