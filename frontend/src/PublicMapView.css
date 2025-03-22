@@ -111,7 +111,7 @@ button:hover {
 
 /* ✅ Prevent content from going under the header */
 body {
-  padding-top: 50px;
+  padding-top: 200px;
 }
 
 /* ✅ Information Row for Icons */
