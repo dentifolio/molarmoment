@@ -48,7 +48,7 @@ const PublicMapView = () => {
     <div className="flex flex-col min-h-screen">
       {/* ✅ MAP SECTION - Single instance */}
       <div className="w-full h-[300px] md:h-[450px]">
-        <LoadScript googleMapsApiKey="AIzaSyAdd8rcTdQ2EOMB-4qUwthsqXSVEwSEW1I">
+        <LoadScript googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0">
           <GoogleMap
             mapContainerStyle={{ width: "100%", height: "100%" }}
             center={center}
