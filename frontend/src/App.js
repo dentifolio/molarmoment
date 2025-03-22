@@ -5,7 +5,7 @@ import OfficeDashboard from "./OfficeDashboard";
 import Login from "./Login";
 import Signup from "./Signup";
 import Navbar from "./Navbar";
-import "./styles.css";
+import "./App.css"; // Updated to import Tailwind CSS
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -35,7 +35,6 @@ function App() {
     <Router>
       <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
       <Routes>
-        {/* ✅ Redirect offices to dashboard if logged in */}
         <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <PublicMapView />} />
         <Route path="/dashboard" element={isLoggedIn ? <OfficeDashboard user={user} /> : <Navigate to="/login" />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
