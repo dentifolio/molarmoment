@@ -1,7 +1,4 @@
-.map-container {
-  display: flex;
-  height: 100vh;
-}
+
 
 .sidebar {
   width: 30%;
@@ -20,13 +17,4 @@ input, select, button {
   width: 100%;
   height: 400px;
   min-height: 300px;
-}
-
-@media (max-width: 768px) {
-  .map-container {
-    flex-direction: column;
-  }
-  .sidebar {
-    width: 100%;
-  }
 }
