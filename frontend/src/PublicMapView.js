@@ -13,7 +13,7 @@ const PublicMapView = () => {
   const [zipCode, setZipCode] = useState("");
   const [radius, setRadius] = useState(5);
   const [center, setCenter] = useState({ lat: 37.769722, lng: -122.476944 }); // San Francisco
-  const [searchedLocation, setSearchedLocation] = useState(null);,
+  const [searchedLocation, setSearchedLocation] = useState(null);
 
   useEffect(() => {
     fetchOffices();
