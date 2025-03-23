@@ -55,11 +55,10 @@ const PublicMapView = () => {
         >
 
           <GoogleMap
-          <div className="w-full h-[300px] md:h-[450px]">
-            mapContainerStyle={{ width: "100%", height: "300px" }}
+            mapContainerStyle={{ width: "100%", height: "500px" }}
             center={center}
             zoom={12}
-            </div>
+
           >
             {offices.map((office) =>
               office.location ? (
