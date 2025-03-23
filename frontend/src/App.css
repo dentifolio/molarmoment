@@ -30,3 +30,9 @@ input, select {
 .appointment-time {
   @apply bg-green-500 text-white px-4 py-2 text-lg rounded mt-2 text-center;
 }
+
+.map-container {
+  height: 100%;
+  width: 100%;
+}
+
