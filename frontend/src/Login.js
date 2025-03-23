@@ -18,12 +18,8 @@ const Login = () => {
         password,
       });
 
-      // Assuming you get a token or user data upon successful login
       const { data } = response;
-      // Save the token or user data as needed
       localStorage.setItem("token", data.token);
-
-      // Redirect to OfficeDashboard
       navigate("/office-dashboard");
     } catch (error) {
       setError("Invalid email or password");
