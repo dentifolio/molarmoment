@@ -55,7 +55,7 @@ const PublicMapView = () => {
         >
 
           <GoogleMap
-            mapContainerStyle={{ width: "100%", height: "500px" }}
+            mapContainerStyle={{ width: "100%", height: "2000px" }}
             center={center}
             zoom={12}
 
