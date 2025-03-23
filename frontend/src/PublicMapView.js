@@ -168,18 +168,41 @@ const PublicMapView = () => {
       </div>
 
       {/* ✅ FOOTER SECTION */}
-      <footer className="bg-gray-800 text-white py-4 mt-auto">
-        <div className="container mx-auto flex justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">Office Signup</h2>
-            <Signup />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold">Office Login</h2>
-            <Login />
-          </div>
-        </div>
-      </footer>
+ <footer className="bg-gray-900 text-white py-10 mt-auto">
+  <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+    {/* Signup Link */}
+    <div>
+      <h2 className="text-2xl font-semibold mb-4">Office Signup</h2>
+      <p className="text-gray-400">
+        Register your office to show availability in real-time.
+      </p>
+      <a
+        href="/signup"
+        className="inline-block mt-4 bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded text-white font-medium"
+      >
+        Go to Signup
+      </a>
+    </div>
+
+    {/* Login Link */}
+    <div>
+      <h2 className="text-2xl font-semibold mb-4">Office Login</h2>
+      <p className="text-gray-400">
+        Already have an account? Log in to manage your schedule.
+      </p>
+      <a
+        href="/login"
+        className="inline-block mt-4 bg-green-600 hover:bg-green-700 transition px-4 py-2 rounded text-white font-medium"
+      >
+        Go to Login
+      </a>
+    </div>
+  </div>
+
+  <div className="mt-10 text-center text-sm text-gray-400">
+    &copy; {new Date().getFullYear()} FindOpenDentist.com — All rights reserved.
+  </div>
+</footer>
     </div>
   );
 };
