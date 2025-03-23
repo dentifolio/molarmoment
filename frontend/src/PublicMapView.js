@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { MapPin, Mail, Phone } from "lucide-react";
@@ -16,6 +16,7 @@ const PublicMapView = () => {
   const [radius, setRadius] = useState(5);
   const [center, setCenter] = useState({ lat: 37.7749, lng: -122.4194 }); // San Francisco
   const [searchedLocation, setSearchedLocation] = useState(null);
+  const mapRef = useRef(null);
 
   useEffect(() => {
     fetchOffices();
@@ -47,6 +48,8 @@ const PublicMapView = () => {
 
       if (filtered.length === 0) {
         alert("No available appointments found.");
+      } else {
+        fitMapToBounds(location, filtered);
       }
     } catch (error) {
       console.error("❌ Error searching offices:", error);
@@ -69,6 +72,17 @@ const PublicMapView = () => {
     }
   };
 
+  const fitMapToBounds = (location, offices) => {
+    const bounds = new window.google.maps.LatLngBounds();
+    bounds.extend(location);
+    offices.forEach((office) => {
+      if (office.location) {
+        bounds.extend(office.location);
+      }
+    });
+    mapRef.current.fitBounds(bounds);
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* ✅ MAP SECTION - Single instance */}
@@ -81,6 +95,7 @@ const PublicMapView = () => {
             mapContainerStyle={{ width: "100%", height: "1000px" }}
             center={center}
             zoom={12}
+            onLoad={map => (mapRef.current = map)}
           >
             {offices.map((office) =>
               office.location ? (
