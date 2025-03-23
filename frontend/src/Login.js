@@ -1,42 +1,56 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useHistory } from "react-router-dom";
-import "./Login.css"; // Add styles for better UI
+import axios from "axios";
+import "./Login.css";
 
-const Login = ({ setOffice }) => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const history = useHistory();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
     try {
       const response = await axios.post("https://findopendentist.onrender.com/login", {
         email,
         password,
       });
 
-      setOffice(response.data.office);
-      history.push("/office-profile");
+      // Assuming you get a token or user data upon successful login
+      const { data } = response;
+      // Save the token or user data as needed
+      localStorage.setItem("token", data.token);
+
+      // Redirect to OfficeDashboard
+      history.push("/office-dashboard");
     } catch (error) {
-      console.error("Login failed:", error.response?.data || error.message);
-      setMessage("⚠️ Error logging in.");
+      setError("Invalid email or password");
     }
   };
 
   return (
     <div className="login-container">
-      <h2>Log In</h2>
-      <div className="login-form">
-        <label>Email</label>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-
-        <label>Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-
-        <button className="login-btn" onClick={handleLogin}>Log In</button>
-        {message && <p className="status-message">{message}</p>}
-      </div>
+      <h2>Login</h2>
+      <form onSubmit={handleLogin}>
+        <label>Email:</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <label>Password:</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Login</button>
+        {error && <p className="error-message">{error}</p>}
+      </form>
     </div>
   );
 };
