@@ -6,6 +6,8 @@ import Signup from './Signup';
 import Login from './Login';
 
 const API_BASE_URL = "https://findopendentist.onrender.com";
+const GEOCODING_API_URL = "https://maps.googleapis.com/maps/api/geocode/json";
+const GOOGLE_MAPS_API_KEY = "AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0"; // Replace with your actual key
 
 const PublicMapView = () => {
   const [offices, setOffices] = useState([]);
@@ -41,9 +43,29 @@ const PublicMapView = () => {
 
       if (filtered.length === 0) {
         alert("No available appointments found.");
+      } else {
+        const location = await getLocationFromZipCode(zipCode);
+        setCenter(location);
+        setSearchedLocation(location);
       }
     } catch (error) {
       console.error("❌ Error searching offices:", error);
+    }
+  };
+
+  const getLocationFromZipCode = async (zip) => {
+    try {
+      const response = await axios.get(GEOCODING_API_URL, {
+        params: {
+          address: zip,
+          key: GOOGLE_MAPS_API_KEY,
+        },
+      });
+      const location = response.data.results[0].geometry.location;
+      return { lat: location.lat, lng: location.lng };
+    } catch (error) {
+      console.error("❌ Error fetching location from zip code:", error);
+      return center; // Return default center if there's an error
     }
   };
 
@@ -52,7 +74,7 @@ const PublicMapView = () => {
       {/* ✅ MAP SECTION - Single instance */}
       <div className="w-full h-[300px] md:h-[450px] mt-200"> {/* <- Add mt-16 */}
         <LoadScript
-          googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0"
+          googleMapsApiKey={GOOGLE_MAPS_API_KEY}
           onError={(error) => console.error("Error loading Google Maps script:", error)}
         >
           <GoogleMap
@@ -168,41 +190,41 @@ const PublicMapView = () => {
       </div>
 
       {/* ✅ FOOTER SECTION */}
- <footer className="bg-gray-900 text-white py-10 mt-auto">
-  <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
-    {/* Signup Link */}
-    <div>
-      <h2 className="text-2xl font-semibold mb-4">Office Signup</h2>
-      <p className="text-gray-400">
-        Register your office to show availability in real-time.
-      </p>
-      <a
-        href="/signup"
-        className="inline-block mt-4 bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded text-white font-medium"
-      >
-        Go to Signup
-      </a>
-    </div>
+      <footer className="bg-gray-900 text-white py-10 mt-auto">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Signup Link */}
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">Office Signup</h2>
+            <p className="text-gray-400">
+              Register your office to show availability in real-time.
+            </p>
+            <a
+              href="/signup"
+              className="inline-block mt-4 bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded text-white font-medium"
+            >
+              Go to Signup
+            </a>
+          </div>
 
-    {/* Login Link */}
-    <div>
-      <h2 className="text-2xl font-semibold mb-4">Office Login</h2>
-      <p className="text-gray-400">
-        Already have an account? Log in to manage your schedule.
-      </p>
-      <a
-        href="/login"
-        className="inline-block mt-4 bg-green-600 hover:bg-green-700 transition px-4 py-2 rounded text-white font-medium"
-      >
-        Go to Login
-      </a>
-    </div>
-  </div>
+          {/* Login Link */}
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">Office Login</h2>
+            <p className="text-gray-400">
+              Already have an account? Log in to manage your schedule.
+            </p>
+            <a
+              href="/login"
+              className="inline-block mt-4 bg-green-600 hover:bg-green-700 transition px-4 py-2 rounded text-white font-medium"
+            >
+              Go to Login
+            </a>
+          </div>
+        </div>
 
-  <div className="mt-10 text-center text-sm text-gray-400">
-    &copy; {new Date().getFullYear()} FindOpenDentist.com — All rights reserved.
-  </div>
-</footer>
+        <div className="mt-10 text-center text-sm text-gray-400">
+          &copy; {new Date().getFullYear()} FindOpenDentist.com — All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 };
