@@ -3,7 +3,6 @@ import axios from "axios";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import BookingForm from "./BookingForm";
 import { MapPin, Mail, Phone } from "lucide-react";
-import './PublicMapView.css'; // Make sure to import the CSS file
 
 const API_BASE_URL = "https://findopendentist.onrender.com";
 
@@ -54,7 +53,7 @@ const PublicMapView = () => {
           onError={(error) => console.error("Error loading Google Maps script:", error)}
         >
           <GoogleMap
-            mapContainerClassName="map-container" // Use the new CSS class
+            mapContainerClassName="map-container"
             center={center}
             zoom={12}
           >
