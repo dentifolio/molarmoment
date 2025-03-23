@@ -53,10 +53,13 @@ const PublicMapView = () => {
           googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0"
           onError={(error) => console.error("Error loading Google Maps script:", error)}
         >
+
           <GoogleMap
+          <div className="w-full h-[300px] md:h-[450px]">
             mapContainerStyle={{ width: "100%", height: "300px" }}
             center={center}
             zoom={12}
+            </div>
           >
             {offices.map((office) =>
               office.location ? (
