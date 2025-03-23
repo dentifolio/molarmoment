@@ -83,9 +83,24 @@ const PublicMapView = () => {
     mapRef.current.fitBounds(bounds);
   };
 
+  const handleBookSlot = async (officeId, slot) => {
+    try {
+      await axios.post(`${API_BASE_URL}/book-slot`, {
+        officeId,
+        slot,
+      });
+      // Refresh office data
+      fetchOffices();
+      alert('Slot booked successfully!');
+    } catch (error) {
+      console.error("❌ Error booking slot:", error);
+      alert('Error booking slot.');
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
-      {/* ✅ MAP SECTION - Single instance */}
+      {/* MAP SECTION - Single instance */}
       <div className="w-full h-[300px] md:h-[450px] mt-200"> {/* <- Add mt-16 */}
         <LoadScript
           googleMapsApiKey={GOOGLE_MAPS_API_KEY}
@@ -129,7 +144,7 @@ const PublicMapView = () => {
         </LoadScript>
       </div>
 
-      {/* ✅ SEARCH + RESULTS SECTION */}
+      {/* SEARCH + RESULTS SECTION */}
       <div className="px-4 py-6 bg-gray-50">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-xl font-semibold mb-2">Find Available Appointments</h2>
@@ -190,6 +205,7 @@ const PublicMapView = () => {
                       <button
                         key={i}
                         className="bg-green-500 text-white text-sm px-3 py-1 rounded hover:bg-green-600"
+                        onClick={() => handleBookSlot(office.id, slot)}
                       >
                         {slot}
                       </button>
@@ -204,7 +220,7 @@ const PublicMapView = () => {
         </div>
       </div>
 
-      {/* ✅ FOOTER SECTION */}
+      {/* FOOTER SECTION */}
       <footer className="bg-gray-900 text-white py-10 mt-auto">
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Signup Link */}
