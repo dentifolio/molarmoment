@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { MapPin, Mail, Phone } from "lucide-react";
+import Signup from './Signup';
+import Login from './Login';
 
 const API_BASE_URL = "https://findopendentist.onrender.com";
 
@@ -10,8 +12,8 @@ const PublicMapView = () => {
   const [selectedOffice, setSelectedOffice] = useState(null);
   const [zipCode, setZipCode] = useState("");
   const [radius, setRadius] = useState(5);
-  const [center, setCenter] = useState({ lat: 37.7749, lng: -122.4194 }); // San Francisco
-  const [searchedLocation, setSearchedLocation] = useState(null);
+  const [center, setCenter] = useState({ lat: 37.769722, lng: -122.476944 }); // San Francisco
+  const [searchedLocation, setSearchedLocation] = useState(null);,
 
   useEffect(() => {
     fetchOffices();
@@ -164,6 +166,20 @@ const PublicMapView = () => {
           )}
         </div>
       </div>
+
+      {/* ✅ FOOTER SECTION */}
+      <footer className="bg-gray-800 text-white py-4 mt-auto">
+        <div className="container mx-auto flex justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Office Signup</h2>
+            <Signup />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold">Office Login</h2>
+            <Login />
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
