@@ -14,6 +14,7 @@ const OfficeProfile = ({ office, setOffice }) => {
     name: office?.name || "",
     email: office?.email || "",
     address: office?.address || "",
+    city: office?.city || "",
     phone: office?.phone || "",
     website: office?.website || "",
     zipCode: office?.zipCode || "",
@@ -50,6 +51,9 @@ const OfficeProfile = ({ office, setOffice }) => {
 
         <label>Street Address</label>
         <input type="text" name="address" value={formData.address} onChange={handleChange} />
+
+        <label>City</label>
+        <input type="text" name="city" value={formData.city} onChange={handleChange} />
 
         <div className="zip-state">
           <div>
