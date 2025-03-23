@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./OfficeProfile.css"; // Add styles for better UI
 
@@ -22,6 +22,13 @@ const OfficeProfile = ({ office, setOffice }) => {
   });
 
   const [message, setMessage] = useState("");
+  const [availableSlots, setAvailableSlots] = useState([]);
+
+  useEffect(() => {
+    if (office?.id) {
+      fetchAvailableSlots(office.id);
+    }
+  }, [office?.id]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -39,6 +46,15 @@ const OfficeProfile = ({ office, setOffice }) => {
     } catch (error) {
       console.error("Profile update failed:", error.response?.data || error.message);
       setMessage("⚠️ Error updating profile.");
+    }
+  };
+
+  const fetchAvailableSlots = async (officeId) => {
+    try {
+      const response = await axios.get(`https://findopendentist.onrender.com/office-slots/${officeId}`);
+      setAvailableSlots(response.data);
+    } catch (error) {
+      console.error("Failed to fetch available slots:", error);
     }
   };
 
@@ -84,6 +100,23 @@ const OfficeProfile = ({ office, setOffice }) => {
 
         <button className="save-btn" onClick={handleSave}>Save Changes</button>
         {message && <p className="status-message">{message}</p>}
+      </div>
+
+      <div className="available-slots-section">
+        <h3>Available Time Slots</h3>
+        {availableSlots.length > 0 ? (
+          availableSlots.map((slot, index) => (
+            <button
+              key={index}
+              className="slot-btn"
+              onClick={() => handleBookSlot(slot)}
+            >
+              {slot}
+            </button>
+          ))
+        ) : (
+          <p>No available slots to display.</p>
+        )}
       </div>
     </div>
   );
