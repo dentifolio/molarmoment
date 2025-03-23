@@ -50,6 +50,9 @@ const PublicMapView = () => {
       <div className="w-full h-[300px] md:h-[450px]">
         <LoadScript
           googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0"
+
+          onError={(e) => console.error("❌ LoadScript error:", e)}
+          onLoad={() => console.log("✅ Google Maps script loaded")}
           onError={(error) => console.error("Error loading Google Maps script:", error)}
         >
           <GoogleMap
