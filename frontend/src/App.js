@@ -1,16 +1,16 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./Login";
 import OfficeDashboard from "./OfficeDashboard";
 
 const App = () => {
   return (
     <Router>
-      <Switch>
-        <Route path="/login" component={Login} />
-        <Route path="/office-dashboard" component={OfficeDashboard} />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/office-dashboard" element={<OfficeDashboard />} />
         {/* Add other routes as needed */}
-      </Switch>
+      </Routes>
     </Router>
   );
 };
