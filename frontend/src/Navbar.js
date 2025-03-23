@@ -29,7 +29,8 @@ const Navbar = ({ isLoggedIn, handleLogout }) => {
             Logout
           </button>
         ) : (
-          <AuthButtons /> // Show login/signup buttons if not logged in
+          // <AuthButtons /> // Removed login/signup buttons
+          null
         )}
       </div>
     </nav>
