@@ -54,7 +54,7 @@ const PublicMapView = () => {
           onError={(error) => console.error("Error loading Google Maps script:", error)}
         >
           <GoogleMap
-            mapContainerClassName="map-container"
+            mapContainerStyle={{ width: "100%", height: "60%" }}
             center={center}
             zoom={12}
           >
