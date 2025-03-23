@@ -14,7 +14,7 @@ const PublicMapView = () => {
   const [selectedOffice, setSelectedOffice] = useState(null);
   const [zipCode, setZipCode] = useState("");
   const [radius, setRadius] = useState(5);
-  const [center, setCenter] = useState({ lat: 37.769722, lng: -122.476944 }); // San Francisco
+  const [center, setCenter] = useState({ lat: 37.7749, lng: -122.4194 }); // San Francisco
   const [searchedLocation, setSearchedLocation] = useState(null);
 
   useEffect(() => {
@@ -34,6 +34,10 @@ const PublicMapView = () => {
 
   const searchOffices = async () => {
     try {
+      const location = await getLocationFromZipCode(zipCode);
+      setCenter(location);
+      setSearchedLocation(location);
+      
       const response = await axios.get(`${API_BASE_URL}/search-offices`, {
         params: { zipCode, radius },
       });
@@ -43,10 +47,6 @@ const PublicMapView = () => {
 
       if (filtered.length === 0) {
         alert("No available appointments found.");
-      } else {
-        const location = await getLocationFromZipCode(zipCode);
-        setCenter(location);
-        setSearchedLocation(location);
       }
     } catch (error) {
       console.error("❌ Error searching offices:", error);
