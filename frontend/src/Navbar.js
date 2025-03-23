@@ -4,14 +4,14 @@ import "./Navbar.css";
 
 const AuthButtons = () => {
   return (
-    <div className="auth-buttons">
-      <Link to="/login" className="auth-btn">
-        Login
-      </Link>
-      <Link to="/signup" className="auth-btn">
-        Sign Up
-      </Link>
-    </div>
+    //<div className="auth-buttons">
+      //<Link to="/login" className="auth-btn">
+        //Login
+      //</Link>
+      //<Link to="/signup" className="auth-btn">
+        //Sign Up
+      //</Link>
+    //</div>
   );
 };
 
