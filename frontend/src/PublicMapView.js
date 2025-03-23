@@ -22,6 +22,7 @@ const PublicMapView = () => {
       const response = await axios.get(`${API_BASE_URL}/active-offices`);
       const filtered = response.data.filter((office) => office.availableSlots.length > 0);
       setOffices(filtered);
+      console.log("Fetched offices:", filtered); // Debugging line
     } catch (error) {
       console.error("❌ Error fetching offices:", error);
     }
@@ -34,6 +35,7 @@ const PublicMapView = () => {
       });
       const filtered = response.data.filter((office) => office.availableSlots.length > 0);
       setOffices(filtered);
+      console.log("Searched offices:", filtered); // Debugging line
 
       if (filtered.length === 0) {
         alert("No available appointments found.");
@@ -46,15 +48,13 @@ const PublicMapView = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* ✅ MAP SECTION - Single instance */}
-      <div className="w-full h-[300px] md:h-[450px] mb-6 md:mb-8">
+      <div className="w-full h-[300px] md:h-[450px]">
         <LoadScript
           googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0"
-          onError={(e) => console.error("❌ LoadScript error:", e)}
-          onLoad={() => console.log("✅ Google Maps script loaded")}
           onError={(error) => console.error("Error loading Google Maps script:", error)}
         >
           <GoogleMap
-            mapContainerStyle={{ width: "100%", height: "300px" }}
+            mapContainerClassName="map-container"
             center={center}
             zoom={12}
           >
