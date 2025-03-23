@@ -5,7 +5,7 @@ import OfficeDashboard from "./OfficeDashboard";
 import Login from "./Login";
 import Signup from "./Signup";
 import Navbar from "./Navbar";
-import "./App.css"; // Updated to import Tailwind CSS
+import "./App.css";  // Import the Tailwind CSS
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
