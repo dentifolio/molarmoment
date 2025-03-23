@@ -1,4 +1,4 @@
-limport React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { MapPin, Mail, Phone } from "lucide-react";
@@ -48,7 +48,7 @@ const PublicMapView = () => {
       {/* ✅ MAP SECTION - Single instance */}
       <div className="w-full h-[300px] md:h-[450px]">
         <LoadScript
-          googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0"
+          googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY"
           onError={(error) => console.error("Error loading Google Maps script:", error)}
         >
           <GoogleMap
