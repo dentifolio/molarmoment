@@ -3,41 +3,68 @@
   padding: 20px;
   border-radius: 8px;
   background: #fff;
-  max-width: 600px;
+  max-width: 100%;
   margin: 20px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 600px) {
+  .office-profile-container {
+    max-width: 600px;
+  }
 }
 
 .profile-form label {
   font-weight: bold;
   display: block;
   margin-top: 10px;
+  color: #333;
 }
 
 .profile-form input, .profile-form select {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
   margin-top: 5px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
 }
 
 .zip-state {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 600px) {
+  .zip-state {
+    flex-direction: row;
+    justify-content: space-between;
+  }
 }
 
 .zip-state div {
-  width: 48%;
+  width: 100%;
+}
+
+@media (min-width: 600px) {
+  .zip-state div {
+    width: 48%;
+  }
 }
 
 .save-btn {
   margin-top: 15px;
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   background-color: #007bff;
   color: white;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
 }
 
 .save-btn:hover {
@@ -48,4 +75,6 @@
   color: green;
   font-weight: bold;
   margin-top: 10px;
+  text-align: center;
+  font-size: 16px;
 }
