@@ -48,14 +48,14 @@ const PublicMapView = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* ✅ MAP SECTION - Single instance */}
-      <div className="w-full h-[300px] md:h-[450px]">
+      <div className="w-full h-[300px] md:h-[450px] mt-16"> {/* <- Add mt-16 */}
         <LoadScript
           googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0"
           onError={(error) => console.error("Error loading Google Maps script:", error)}
         >
 
           <GoogleMap
-            mapContainerStyle={{ width: "100%", height: "2000px" }}
+            mapContainerStyle={{ width: "100%", height: "500px" }}
             center={center}
             zoom={12}
 
