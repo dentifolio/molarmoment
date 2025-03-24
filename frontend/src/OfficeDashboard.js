@@ -1,45 +1,23 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import "./OfficeDashboard.css"; // Add styles for better UI
 
 const states = [
-  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA",
-  "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT",
-  "VA", "WA", "WV", "WI", "WY"
+  // ... (same as above)
 ];
 
-// Generate time slots from 3 AM to 11:30 PM
 const generateTimeSlots = () => {
   const slots = [];
-  for (let hour = 3; hour < 24; hour++) {
-    const hourFormatted = hour < 10 ? `0${hour}` : hour;
-    slots.push(`${hourFormatted}:00`);
-    slots.push(`${hourFormatted}:30`);
+  for (let hour = 3; hour <= 23; hour++) {
+    slots.push(`${hour}:00`);
+    slots.push(`${hour}:30`);
   }
   return slots;
 };
 
-// Function to convert 24-hour time format to 12-hour time format
-const formatTimeTo12Hour = (time) => {
-  const [hour, minute] = time.split(':');
-  const period = hour >= 12 ? 'PM' : 'AM';
-  const formattedHour = (hour % 12) || 12; // Convert 0 to 12 for 12 AM
-  return `${formattedHour}:${minute} ${period}`;
-};
-
 const OfficeDashboard = ({ office, setOffice }) => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: office?.name || "",
-    email: office?.email || "",
-    address: office?.address || "",
-    city: office?.city || "",
-    phone: office?.phone || "",
-    website: office?.website || "",
-    zipCode: office?.zipCode || "",
-    state: office?.state || "NY",
+    // ... (same as above)
   });
 
   const [message, setMessage] = useState("");
@@ -49,7 +27,6 @@ const OfficeDashboard = ({ office, setOffice }) => {
   const [selectedSlots, setSelectedSlots] = useState([]);
 
   useEffect(() => {
-    console.log("Office data on mount:", office);
     if (office?.id) {
       fetchBookedForms(office.id);
       fetchAvailableSlots(office.id);
@@ -62,29 +39,17 @@ const OfficeDashboard = ({ office, setOffice }) => {
 
   const handleSave = async () => {
     try {
-      console.log("Saving profile with data:", formData);
-      const response = await axios.post("https://findopendentist.onrender.com/update-office-info", {
-        oldEmail: office.email, // Use the existing email for lookup
-        newEmail: formData.email,
-        name: formData.name,
-        address: formData.address,
-        phone: formData.phone,
-        website: formData.website,
-        zipCode: formData.zipCode,
-        state: formData.state,
+      const response = await axios.post("https://findopendentist.onrender.com/update-office", {
+        email: formData.email,
+        ...formData,
       });
-      console.log("Response from server:", response.data);
 
-      if (response.data.success) {
-        setOffice(response.data.office);
-        setMessage("✅ Profile updated successfully!");
-      } else {
-        setMessage("⚠️ Error updating profile.");
-      }
+      setOffice(response.data.office);
+      setMessage("✅ Profile updated successfully!");
       setEditing(false);
     } catch (error) {
       console.error("Profile update failed:", error.response?.data || error.message);
-      setMessage("⚠️ Error updating profile.");
+      setMessage("⚠️ Error updating profile. Please try again.");
     }
   };
 
@@ -99,129 +64,134 @@ const OfficeDashboard = ({ office, setOffice }) => {
 
   const fetchAvailableSlots = async (officeId) => {
     try {
-      console.log("Fetching available slots for office ID:", officeId);
       const response = await axios.get(`https://findopendentist.onrender.com/available-slots/${officeId}`);
-      console.log("Available slots fetched:", response.data);
       setAvailableSlots(response.data);
-      setSelectedSlots(response.data); // Initialize selected slots
     } catch (error) {
       console.error("Failed to fetch available slots:", error);
     }
   };
 
-  const saveSelectedSlots = async (slots) => {
-    try {
-      await axios.post("https://findopendentist.onrender.com/update-availability", {
-        email: office.email,
-        availableSlots: slots,
-      });
-      console.log("Selected slots saved successfully");
-    } catch (error) {
-      console.error("Failed to save selected slots:", error);
-    }
-  };
-
   const toggleSlotSelection = (slot) => {
-    const updatedSlots = selectedSlots.includes(slot)
-      ? selectedSlots.filter((s) => s !== slot)
-      : [...selectedSlots, slot];
-    setSelectedSlots(updatedSlots);
-    saveSelectedSlots(updatedSlots);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+    setSelectedSlots((prevSelectedSlots) =>
+      prevSelectedSlots.includes(slot)
+        ? prevSelectedSlots.filter((s) => s !== slot)
+        : [...prevSelectedSlots, slot]
+    );
   };
 
   return (
     <div className="office-dashboard-container">
       <h2>Office Information</h2>
       {editing ? (
-        <div className="profile-form">
-          <label>Office Name</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} />
-
-          <label>Street Address</label>
-          <input type="text" name="address" value={formData.address} onChange={handleChange} />
-
-          <label>City</label>
-          <input type="text" name="city" value={formData.city} onChange={handleChange} />
-
-          <div className="zip-state">
-            <div>
-              <label>ZIP Code</label>
-              <input type="text" name="zipCode" value={formData.zipCode} onChange={handleChange} />
-            </div>
-
-            <div>
-              <label>State</label>
-              <select name="state" value={formData.state} onChange={handleChange}>
-                {states.map((state) => (
-                  <option key={state} value={state}>
-                    {state}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <label>Phone</label>
-          <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
-
-          <label>Email (Cannot be changed)</label>
-          <input type="email" name="email" value={formData.email} readOnly />
-
-          <label>Website</label>
-          <input type="text" name="website" value={formData.website} onChange={handleChange} />
-
-          <button className="save-btn" onClick={handleSave}>Save Changes</button>
-          <button className="cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
-          {message && <p className="status-message">{message}</p>}
-        </div>
+        <ProfileForm
+          formData={formData}
+          handleChange={handleChange}
+          handleSave={handleSave}
+          setEditing={setEditing}
+          message={message}
+        />
       ) : (
-        <div className="profile-view">
-          <p><strong>Office Name:</strong> {formData.name}</p>
-          <p><strong>Address:</strong> {formData.address}, {formData.city}, {formData.state} {formData.zipCode}</p>
-          <p><strong>Phone:</strong> {formData.phone}</p>
-          <p><strong>Email:</strong> {formData.email}</p>
-          <p><strong>Website:</strong> {formData.website}</p>
-          <button className="edit-btn" onClick={() => setEditing(true)}>Edit Information</button>
-        </div>
+        <ProfileView formData={formData} setEditing={setEditing} />
       )}
 
-      <div className="available-slots">
-        <h3>Available Time Slots</h3>
-        <div className="slots-container">
-          {generateTimeSlots().map((slot, index) => (
-            <button
-              key={index}
-              className={`slot-btn ${selectedSlots.includes(slot) ? 'selected' : ''}`}
-              onClick={() => toggleSlotSelection(slot)}
-            >
-              {formatTimeTo12Hour(slot)}
-            </button>
-          ))}
-        </div>
-      </div>
+      <AvailableSlots
+        slots={generateTimeSlots()}
+        selectedSlots={selectedSlots}
+        toggleSlotSelection={toggleSlotSelection}
+      />
 
-      <div className="booked-forms-section">
-        <h3>Booked Forms</h3>
-        {bookedForms.length > 0 ? (
-          bookedForms.map((form, index) => (
-            <div key={index} className="booked-form">
-              <p>Date: {form.date}</p>
-              <p>Time: {form.time}</p>
-              <p>Patient: {form.patientName}</p>
-            </div>
-          ))
-        ) : (
-          <p>No booked forms to display.</p>
-        )}
-      </div>
-      <button className="logout-btn" onClick={handleLogout}>Log Out</button>
+      <BookedForms bookedForms={bookedForms} />
     </div>
   );
 };
+
+const ProfileForm = ({ formData, handleChange, handleSave, setEditing, message }) => (
+  <div className="profile-form">
+    <label>Office Name</label>
+    <input type="text" name="name" value={formData.name} onChange={handleChange} />
+
+    <label>Street Address</label>
+    <input type="text" name="address" value={formData.address} onChange={handleChange} />
+
+    <label>City</label>
+    <input type="text" name="city" value={formData.city} onChange={handleChange} />
+
+    <div className="zip-state">
+      <div>
+        <label>ZIP Code</label>
+        <input type="text" name="zipCode" value={formData.zipCode} onChange={handleChange} />
+      </div>
+
+      <div>
+        <label>State</label>
+        <select name="state" value={formData.state} onChange={handleChange}>
+          {states.map((state) => (
+            <option key={state} value={state}>
+              {state}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <label>Phone</label>
+    <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
+
+    <label>Email (Cannot be changed)</label>
+    <input type="email" name="email" value={formData.email} readOnly />
+
+    <label>Website</label>
+    <input type="text" name="website" value={formData.website} onChange={handleChange} />
+
+    <button className="save-btn" onClick={handleSave}>Save Changes</button>
+    <button className="cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
+    {message && <p className="status-message">{message}</p>}
+  </div>
+);
+
+const ProfileView = ({ formData, setEditing }) => (
+  <div className="profile-view">
+    <p><strong>Office Name:</strong> {formData.name}</p>
+    <p><strong>Address:</strong> {formData.address}, {formData.city}, {formData.state} {formData.zipCode}</p>
+    <p><strong>Phone:</strong> {formData.phone}</p>
+    <p><strong>Email:</strong> {formData.email}</p>
+    <p><strong>Website:</strong> {formData.website}</p>
+    <button className="edit-btn" onClick={() => setEditing(true)}>Edit Information</button>
+  </div>
+);
+
+const AvailableSlots = ({ slots, selectedSlots, toggleSlotSelection }) => (
+  <div className="available-slots">
+    <h3>Available Time Slots</h3>
+    <div className="slots-container">
+      {slots.map((slot, index) => (
+        <button
+          key={index}
+          className={`slot-btn ${selectedSlots.includes(slot) ? 'selected' : ''}`}
+          onClick={() => toggleSlotSelection(slot)}
+        >
+          {slot}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const BookedForms = ({ bookedForms }) => (
+  <div className="booked-forms-section">
+    <h3>Booked Forms</h3>
+    {bookedForms.length > 0 ? (
+      bookedForms.map((form, index) => (
+        <div key={index} className="booked-form">
+          <p>Date: {form.date}</p>
+          <p>Time: {form.time}</p>
+          <p>Patient: {form.patientName}</p>
+        </div>
+      ))
+    ) : (
+      <p>No booked forms to display.</p>
+    )}
+  </div>
+);
 
 export default OfficeDashboard;
