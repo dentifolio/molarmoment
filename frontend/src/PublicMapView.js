@@ -100,8 +100,9 @@ const PublicMapView = () => {
   // Function to convert 24-hour time format to 12-hour time format
   const formatTimeTo12Hour = (time) => {
     const [hour, minute] = time.split(':');
-    const period = hour >= 12 ? 'PM' : 'AM';
-    const formattedHour = (hour % 12) || 12; // Convert 0 to 12 for 12 AM
+    const hourInt = parseInt(hour, 10);
+    const period = hourInt >= 12 ? 'PM' : 'AM';
+    const formattedHour = hourInt % 12 || 12; // Convert 0 to 12 for 12 AM
     return `${formattedHour}:${minute} ${period}`;
   };
 
@@ -242,28 +243,28 @@ const PublicMapView = () => {
       <footer className="bg-gray-900 text-white py-10 mt-auto">
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Signup Link */}
-          <div>
+          <div className="text-center">
             <h2 className="text-2xl font-semibold mb-4">Office Signup</h2>
-            <p className="text-gray-400">
+            <p className="text-gray-400 mb-4">
               Register your office to show availability in real-time.
             </p>
             <Link
               to="/signup"
-              className="inline-block mt-4 bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded text-white font-medium"
+              className="inline-block bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-full text-white font-medium"
             >
               Go to Signup
             </Link>
           </div>
 
           {/* Login Link */}
-          <div>
+          <div className="text-center">
             <h2 className="text-2xl font-semibold mb-4">Office Login</h2>
-            <p className="text-gray-400">
+            <p className="text-gray-400 mb-4">
               Already have an account? Log in to manage your schedule.
             </p>
             <Link
               to="/login"
-              className="inline-block mt-4 bg-green-600 hover:bg-green-700 transition px-4 py-2 rounded text-white font-medium"
+              className="inline-block bg-green-600 hover:bg-green-700 transition px-6 py-3 rounded-full text-white font-medium"
             >
               Go to Login
             </Link>
