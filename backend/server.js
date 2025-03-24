@@ -203,6 +203,7 @@ app.post("/login", async (req, res) => {
 // ✅ **Update Office Information**
 app.post("/update-office-info", async (req, res) => {
   const { oldEmail, newEmail, name, address, phone, website, zipCode, state } = req.body;
+  console.log("Received update request:", req.body);
 
   try {
     const snapshot = await db.collection("offices").where("email", "==", oldEmail).get();
@@ -227,9 +228,11 @@ app.post("/update-office-info", async (req, res) => {
     // Fetch updated office details
     const updatedSnapshot = await officeRef.get();
     const updatedOffice = updatedSnapshot.data();
+    console.log("Updated office details:", updatedOffice);
 
     res.json({ success: true, office: updatedOffice });
   } catch (error) {
+    console.error("Error updating office:", error);
     res.status(500).json({ message: "Error updating office", error });
   }
 });
