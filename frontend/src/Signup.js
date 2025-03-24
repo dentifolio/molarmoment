@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,7 +19,7 @@ const Signup = () => {
     try {
       const response = await axios.post('https://findopendentist.onrender.com/signup', formData);
       if (response.data.success) {
-        history.push('/dashboard');
+        navigate('/dashboard');
       } else {
         alert('Signup failed');
       }
