@@ -56,6 +56,7 @@ const OfficeDashboard = ({ office, setOffice }) => {
       const response = await axios.post("https://findopendentist.onrender.com/update-office", {
         email: formData.email,
         ...formData,
+        availableSlots: selectedSlots,
       });
 
       setOffice(response.data.office);
@@ -80,6 +81,7 @@ const OfficeDashboard = ({ office, setOffice }) => {
     try {
       const response = await axios.get(`https://findopendentist.onrender.com/available-slots/${officeId}`);
       setAvailableSlots(response.data);
+      setSelectedSlots(response.data); // Initialize selected slots
     } catch (error) {
       console.error("Failed to fetch available slots:", error);
     }
