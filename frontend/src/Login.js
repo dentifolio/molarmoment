@@ -18,9 +18,13 @@ const Login = () => {
         password,
       });
 
-      const { data } = response;
-      localStorage.setItem("token", data.token);
-      navigate("/office-dashboard");
+      if (response.status === 200) {
+        const { data } = response;
+        localStorage.setItem("token", data.token);
+        navigate("/office-dashboard");
+      } else {
+        setError("Invalid email or password");
+      }
     } catch (error) {
       setError("Invalid email or password");
     }
