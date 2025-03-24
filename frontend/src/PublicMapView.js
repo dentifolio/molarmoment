@@ -136,6 +136,17 @@ const PublicMapView = () => {
                 <div>
                   <h3 className="font-bold">{selectedOffice.name}</h3>
                   <p className="text-sm">{selectedOffice.address}</p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {selectedOffice.availableSlots.map((slot, i) => (
+                      <button
+                        key={i}
+                        className="bg-green-500 text-white text-sm px-3 py-1 rounded hover:bg-green-600"
+                        onClick={() => handleBookSlot(selectedOffice.id, slot)}
+                      >
+                        {slot}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </InfoWindow>
             )}
