@@ -21,6 +21,14 @@ const generateTimeSlots = () => {
   return slots;
 };
 
+// Function to convert 24-hour time format to 12-hour time format
+const formatTimeTo12Hour = (time) => {
+  const [hour, minute] = time.split(':');
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const formattedHour = (hour % 12) || 12; // Convert 0 to 12 for 12 AM
+  return `${formattedHour}:${minute} ${period}`;
+};
+
 const OfficeDashboard = ({ office, setOffice }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -101,12 +109,24 @@ const OfficeDashboard = ({ office, setOffice }) => {
     }
   };
 
+  const saveSelectedSlots = async (slots) => {
+    try {
+      await axios.post("https://findopendentist.onrender.com/update-availability", {
+        email: office.email,
+        availableSlots: slots,
+      });
+      console.log("Selected slots saved successfully");
+    } catch (error) {
+      console.error("Failed to save selected slots:", error);
+    }
+  };
+
   const toggleSlotSelection = (slot) => {
-    setSelectedSlots((prevSelectedSlots) =>
-      prevSelectedSlots.includes(slot)
-        ? prevSelectedSlots.filter((s) => s !== slot)
-        : [...prevSelectedSlots, slot]
-    );
+    const updatedSlots = selectedSlots.includes(slot)
+      ? selectedSlots.filter((s) => s !== slot)
+      : [...selectedSlots, slot];
+    setSelectedSlots(updatedSlots);
+    saveSelectedSlots(updatedSlots);
   };
 
   const handleLogout = () => {
@@ -179,7 +199,7 @@ const OfficeDashboard = ({ office, setOffice }) => {
               className={`slot-btn ${selectedSlots.includes(slot) ? 'selected' : ''}`}
               onClick={() => toggleSlotSelection(slot)}
             >
-              {slot}
+              {formatTimeTo12Hour(slot)}
             </button>
           ))}
         </div>
