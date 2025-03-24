@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,7 +15,7 @@ const Login = () => {
     try {
       const response = await axios.post('https://findopendentist.onrender.com/login', formData);
       if (response.data.success) {
-        history.push('/dashboard');
+        navigate('/dashboard');
       } else {
         alert('Login failed');
       }
