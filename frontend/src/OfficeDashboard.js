@@ -53,11 +53,13 @@ const OfficeDashboard = ({ office, setOffice }) => {
 
   const handleSave = async () => {
     try {
+      console.log("Saving profile and slots...", selectedSlots);
       const response = await axios.post("https://findopendentist.onrender.com/update-office", {
         email: formData.email,
         ...formData,
         availableSlots: selectedSlots,
       });
+      console.log("Response from server:", response.data);
 
       setOffice(response.data.office);
       setMessage("✅ Profile updated successfully!");
