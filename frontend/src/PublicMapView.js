@@ -97,6 +97,14 @@ const PublicMapView = () => {
     }
   };
 
+  // Function to convert 24-hour time format to 12-hour time format
+  const formatTimeTo12Hour = (time) => {
+    const [hour, minute] = time.split(':');
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const formattedHour = (hour % 12) || 12; // Convert 0 to 12 for 12 AM
+    return `${formattedHour}:${minute} ${period}`;
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* MAP SECTION */}
@@ -143,7 +151,7 @@ const PublicMapView = () => {
                         className="bg-green-500 text-white text-sm px-3 py-1 rounded hover:bg-green-600"
                         onClick={() => handleBookSlot(selectedOffice.id, slot)}
                       >
-                        {slot}
+                        {formatTimeTo12Hour(slot)}
                       </button>
                     ))}
                   </div>
@@ -217,7 +225,7 @@ const PublicMapView = () => {
                         className="bg-green-500 text-white text-sm px-3 py-1 rounded hover:bg-green-600"
                         onClick={() => handleBookSlot(office.id, slot)}
                       >
-                        {slot}
+                        {formatTimeTo12Hour(slot)}
                       </button>
                     ))}
                   </div>
