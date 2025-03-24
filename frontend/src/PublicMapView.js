@@ -38,7 +38,7 @@ const PublicMapView = () => {
       const location = await getLocationFromZipCode(zipCode);
       setCenter(location);
       setSearchedLocation(location);
-      
+
       const response = await axios.get(`${API_BASE_URL}/search-offices`, {
         params: { zipCode, radius },
       });
