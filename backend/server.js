@@ -28,7 +28,6 @@ const resetDailyAppointments = async () => {
   }
 };
 
-
 // ✅ **Schedule Daily Reset at Midnight**
 const scheduleDailyReset = () => {
   const now = new Date();
@@ -179,6 +178,7 @@ app.get("/appointments", async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching appointments", error });
   }
 });
+
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -224,7 +224,11 @@ app.post("/update-office-info", async (req, res) => {
     await officeRef.update({ email: newEmail, name, address, phone, website, zipCode, state });
     console.log(`✅ Updated office info for: ${newEmail}`);
 
-    res.json({ success: true, message: "Office updated successfully!" });
+    // Fetch updated office details
+    const updatedSnapshot = await officeRef.get();
+    const updatedOffice = updatedSnapshot.data();
+
+    res.json({ success: true, office: updatedOffice });
   } catch (error) {
     res.status(500).json({ message: "Error updating office", error });
   }
