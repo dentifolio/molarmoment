@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { MapPin, Mail, Phone } from "lucide-react";
-import Signup from './Signup';
-import Login from './Login';
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 const API_BASE_URL = "https://findopendentist.onrender.com";
 const GEOCODING_API_URL = "https://maps.googleapis.com/maps/api/geocode/json";
@@ -229,12 +228,12 @@ const PublicMapView = () => {
             <p className="text-gray-400">
               Register your office to show availability in real-time.
             </p>
-            <a
-              href="/signup"
+            <Link
+              to="/signup"
               className="inline-block mt-4 bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded text-white font-medium"
             >
               Go to Signup
-            </a>
+            </Link>
           </div>
 
           {/* Login Link */}
@@ -243,12 +242,12 @@ const PublicMapView = () => {
             <p className="text-gray-400">
               Already have an account? Log in to manage your schedule.
             </p>
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="inline-block mt-4 bg-green-600 hover:bg-green-700 transition px-4 py-2 rounded text-white font-medium"
             >
               Go to Login
-            </a>
+            </Link>
           </div>
         </div>
 
