@@ -1,57 +1,38 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import "./Login.css";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useHistory } from 'react-router-dom';
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const history = useHistory();
 
-  const handleLogin = async (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await axios.post("https://findopendentist.onrender.com/login", {
-        email,
-        password,
-      });
-
-      if (response.status === 200) {
-        const { data } = response;
-        localStorage.setItem("token", data.token);
-        navigate("/office-dashboard");
+      const response = await axios.post('https://findopendentist.onrender.com/login', formData);
+      if (response.data.success) {
+        history.push('/dashboard');
       } else {
-        setError("Invalid email or password");
+        alert('Login failed');
       }
     } catch (error) {
-      setError("Invalid email or password");
+      console.error('Login failed:', error);
+      alert('Failed to log in.');
     }
   };
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <label>Email:</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Login</button>
-        {error && <p className="error-message">{error}</p>}
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <label>Email</label>
+      <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+      <label>Password</label>
+      <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+      <button type="submit">Login</button>
+    </form>
   );
 };
 
