@@ -84,3 +84,12 @@
   border-radius: 4px;
   margin-bottom: 10px;
 }
+
+.office-dashboard-container {
+  padding: 20px;
+}
+
+.profile-form,
+.profile-view {
+  border: 1px solid #ccc;
+  padding:
