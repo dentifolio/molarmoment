@@ -9,6 +9,17 @@ const states = [
   "VA", "WA", "WV", "WI", "WY"
 ];
 
+// Generate time slots from 3 AM to 11:30 PM
+const generateTimeSlots = () => {
+  const slots = [];
+  for (let hour = 3; hour < 24; hour++) {
+    const hourFormatted = hour < 10 ? `0${hour}` : hour;
+    slots.push(`${hourFormatted}:00`);
+    slots.push(`${hourFormatted}:30`);
+  }
+  return slots;
+};
+
 const OfficeDashboard = ({ office, setOffice }) => {
   const [formData, setFormData] = useState({
     name: office?.name || "",
@@ -139,7 +150,7 @@ const OfficeDashboard = ({ office, setOffice }) => {
       <div className="available-slots">
         <h3>Available Time Slots</h3>
         <div className="slots-container">
-          {availableSlots.map((slot, index) => (
+          {generateTimeSlots().map((slot, index) => (
             <button
               key={index}
               className={`slot-btn ${selectedSlots.includes(slot) ? 'selected' : ''}`}
@@ -159,7 +170,6 @@ const OfficeDashboard = ({ office, setOffice }) => {
               <p>Date: {form.date}</p>
               <p>Time: {form.time}</p>
               <p>Patient: {form.patientName}</p>
-              {/* Add more fields as required */}
             </div>
           ))
         ) : (
