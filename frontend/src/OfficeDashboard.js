@@ -41,6 +41,7 @@ const OfficeDashboard = ({ office, setOffice }) => {
   const [selectedSlots, setSelectedSlots] = useState([]);
 
   useEffect(() => {
+    console.log("Office data on mount:", office);
     if (office?.id) {
       fetchBookedForms(office.id);
       fetchAvailableSlots(office.id);
@@ -81,7 +82,9 @@ const OfficeDashboard = ({ office, setOffice }) => {
 
   const fetchAvailableSlots = async (officeId) => {
     try {
+      console.log("Fetching available slots for office ID:", officeId);
       const response = await axios.get(`https://findopendentist.onrender.com/available-slots/${officeId}`);
+      console.log("Available slots fetched:", response.data);
       setAvailableSlots(response.data);
       setSelectedSlots(response.data); // Initialize selected slots
     } catch (error) {
