@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./OfficeProfile.css"; // Add styles for better UI
+import "./OfficeDashboard.css"; // Add styles for better UI
 
 const states = [
   "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA",
@@ -9,7 +9,7 @@ const states = [
   "VA", "WA", "WV", "WI", "WY"
 ];
 
-const OfficeProfile = ({ office, setOffice }) => {
+const OfficeDashboard = ({ office, setOffice }) => {
   const [formData, setFormData] = useState({
     name: office?.name || "",
     email: office?.email || "",
@@ -23,10 +23,14 @@ const OfficeProfile = ({ office, setOffice }) => {
 
   const [message, setMessage] = useState("");
   const [bookedForms, setBookedForms] = useState([]);
+  const [editing, setEditing] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [selectedSlots, setSelectedSlots] = useState([]);
 
   useEffect(() => {
     if (office?.id) {
       fetchBookedForms(office.id);
+      fetchAvailableSlots(office.id);
     }
   }, [office?.id]);
 
@@ -43,6 +47,7 @@ const OfficeProfile = ({ office, setOffice }) => {
 
       setOffice(response.data.office);
       setMessage("✅ Profile updated successfully!");
+      setEditing(false);
     } catch (error) {
       console.error("Profile update failed:", error.response?.data || error.message);
       setMessage("⚠️ Error updating profile.");
@@ -58,48 +63,92 @@ const OfficeProfile = ({ office, setOffice }) => {
     }
   };
 
+  const fetchAvailableSlots = async (officeId) => {
+    try {
+      const response = await axios.get(`https://findopendentist.onrender.com/available-slots/${officeId}`);
+      setAvailableSlots(response.data);
+    } catch (error) {
+      console.error("Failed to fetch available slots:", error);
+    }
+  };
+
+  const toggleSlotSelection = (slot) => {
+    setSelectedSlots((prevSelectedSlots) =>
+      prevSelectedSlots.includes(slot)
+        ? prevSelectedSlots.filter((s) => s !== slot)
+        : [...prevSelectedSlots, slot]
+    );
+  };
+
   return (
-    <div className="office-profile-container">
+    <div className="office-dashboard-container">
       <h2>Office Information</h2>
-      <div className="profile-form">
-        <label>Office Name</label>
-        <input type="text" name="name" value={formData.name} onChange={handleChange} />
+      {editing ? (
+        <div className="profile-form">
+          <label>Office Name</label>
+          <input type="text" name="name" value={formData.name} onChange={handleChange} />
 
-        <label>Street Address</label>
-        <input type="text" name="address" value={formData.address} onChange={handleChange} />
+          <label>Street Address</label>
+          <input type="text" name="address" value={formData.address} onChange={handleChange} />
 
-        <label>City</label>
-        <input type="text" name="city" value={formData.city} onChange={handleChange} />
+          <label>City</label>
+          <input type="text" name="city" value={formData.city} onChange={handleChange} />
 
-        <div className="zip-state">
-          <div>
-            <label>ZIP Code</label>
-            <input type="text" name="zipCode" value={formData.zipCode} onChange={handleChange} />
+          <div className="zip-state">
+            <div>
+              <label>ZIP Code</label>
+              <input type="text" name="zipCode" value={formData.zipCode} onChange={handleChange} />
+            </div>
+
+            <div>
+              <label>State</label>
+              <select name="state" value={formData.state} onChange={handleChange}>
+                {states.map((state) => (
+                  <option key={state} value={state}>
+                    {state}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label>State</label>
-            <select name="state" value={formData.state} onChange={handleChange}>
-              {states.map((state) => (
-                <option key={state} value={state}>
-                  {state}
-                </option>
-              ))}
-            </select>
-          </div>
+          <label>Phone</label>
+          <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
+
+          <label>Email (Cannot be changed)</label>
+          <input type="email" name="email" value={formData.email} readOnly />
+
+          <label>Website</label>
+          <input type="text" name="website" value={formData.website} onChange={handleChange} />
+
+          <button className="save-btn" onClick={handleSave}>Save Changes</button>
+          <button className="cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
+          {message && <p className="status-message">{message}</p>}
         </div>
+      ) : (
+        <div className="profile-view">
+          <p><strong>Office Name:</strong> {formData.name}</p>
+          <p><strong>Address:</strong> {formData.address}, {formData.city}, {formData.state} {formData.zipCode}</p>
+          <p><strong>Phone:</strong> {formData.phone}</p>
+          <p><strong>Email:</strong> {formData.email}</p>
+          <p><strong>Website:</strong> {formData.website}</p>
+          <button className="edit-btn" onClick={() => setEditing(true)}>Edit Information</button>
+        </div>
+      )}
 
-        <label>Phone</label>
-        <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
-
-        <label>Email (Cannot be changed)</label>
-        <input type="email" name="email" value={formData.email} readOnly />
-
-        <label>Website</label>
-        <input type="text" name="website" value={formData.website} onChange={handleChange} />
-
-        <button className="save-btn" onClick={handleSave}>Save Changes</button>
-        {message && <p className="status-message">{message}</p>}
+      <div className="available-slots">
+        <h3>Available Time Slots</h3>
+        <div className="slots-container">
+          {availableSlots.map((slot, index) => (
+            <button
+              key={index}
+              className={`slot-btn ${selectedSlots.includes(slot) ? 'selected' : ''}`}
+              onClick={() => toggleSlotSelection(slot)}
+            >
+              {slot}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="booked-forms-section">
@@ -121,4 +170,4 @@ const OfficeProfile = ({ office, setOffice }) => {
   );
 };
 
-export default OfficeProfile;
+export default OfficeDashboard;
