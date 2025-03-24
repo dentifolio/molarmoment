@@ -6,7 +6,7 @@ import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 const API_BASE_URL = "https://findopendentist.onrender.com";
 const GEOCODING_API_URL = "https://maps.googleapis.com/maps/api/geocode/json";
-const GOOGLE_MAPS_API_KEY = "AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0"; // Replace with your actual key
+const GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"; // Replace with your actual key
 
 const PublicMapView = () => {
   const [offices, setOffices] = useState([]);
@@ -99,17 +99,17 @@ const PublicMapView = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* MAP SECTION - Single instance */}
-      <div className="w-full h-[300px] md:h-[450px] mt-200"> {/* <- Add mt-16 */}
+      {/* MAP SECTION */}
+      <div className="w-full h-[300px] md:h-[450px] mt-16">
         <LoadScript
           googleMapsApiKey={GOOGLE_MAPS_API_KEY}
           onError={(error) => console.error("Error loading Google Maps script:", error)}
         >
           <GoogleMap
-            mapContainerStyle={{ width: "100%", height: "1000px" }}
+            mapContainerStyle={{ width: "100%", height: "600px" }}
             center={center}
             zoom={12}
-            onLoad={map => (mapRef.current = map)}
+            onLoad={(map) => (mapRef.current = map)}
           >
             {offices.map((office) =>
               office.location ? (
@@ -235,4 +235,39 @@ const PublicMapView = () => {
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Signup Link */}
           <div>
-            <h2 className="text-2xl font-semibold mb-
+            <h2 className="text-2xl font-semibold mb-4">Office Signup</h2>
+            <p className="text-gray-400">
+              Register your office to show availability in real-time.
+            </p>
+            <Link
+              to="/signup"
+              className="inline-block mt-4 bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded text-white font-medium"
+            >
+              Go to Signup
+            </Link>
+          </div>
+
+          {/* Login Link */}
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">Office Login</h2>
+            <p className="text-gray-400">
+              Already have an account? Log in to manage your schedule.
+            </p>
+            <Link
+              to="/login"
+              className="inline-block mt-4 bg-green-600 hover:bg-green-700 transition px-4 py-2 rounded text-white font-medium"
+            >
+              Go to Login
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-10 text-center text-sm text-gray-400">
+          &copy; {new Date().getFullYear()} FindOpenDentist.com — All rights reserved.
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default PublicMapView;
