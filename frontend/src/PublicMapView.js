@@ -270,4 +270,4 @@ const PublicMapView = () => {
   );
 };
 
-export default
+export default PublicMapView;
