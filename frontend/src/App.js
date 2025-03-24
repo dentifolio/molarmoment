@@ -1,22 +1,26 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./Login";
-import OfficeDashboard from "./OfficeDashboard";
-import PublicMapView from "./PublicMapView";
-import Signup from "./Signup"; // Import Signup component
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import Navbar from './Navbar';
+import Login from './Login';
+import Signup from './Signup';
+import PublicMapView from './PublicMapView';
+import OfficeDashboard from './OfficeDashboard';
+import './App.css';
 
-const App = () => {
+function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<PublicMapView />} /> {/* Default route */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/office-dashboard" element={<OfficeDashboard />} />
-        <Route path="/signup" element={<Signup />} /> {/* Signup route */}
-        {/* Add other routes as needed */}
-      </Routes>
+      <div className="App">
+        <Navbar />
+        <Switch>
+          <Route path="/login" component={Login} />
+          <Route path="/signup" component={Signup} />
+          <Route path="/dashboard" component={OfficeDashboard} />
+          <Route path="/" component={PublicMapView} />
+        </Switch>
+      </div>
     </Router>
   );
-};
+}
 
 export default App;
