@@ -3,7 +3,10 @@ import axios from "axios";
 import "./OfficeDashboard.css"; // Add styles for better UI
 
 const states = [
-  // ... (same as above)
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA",
+  "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT",
+  "VA", "WA", "WV", "WI", "WY"
 ];
 
 const generateTimeSlots = () => {
@@ -17,7 +20,14 @@ const generateTimeSlots = () => {
 
 const OfficeDashboard = ({ office, setOffice }) => {
   const [formData, setFormData] = useState({
-    // ... (same as above)
+    name: office?.name || "",
+    email: office?.email || "",
+    address: office?.address || "",
+    city: office?.city || "",
+    phone: office?.phone || "",
+    website: office?.website || "",
+    zipCode: office?.zipCode || "",
+    state: office?.state || "NY",
   });
 
   const [message, setMessage] = useState("");
