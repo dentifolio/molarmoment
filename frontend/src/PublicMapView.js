@@ -6,7 +6,7 @@ import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 const API_BASE_URL = "https://findopendentist.onrender.com";
 const GEOCODING_API_URL = "https://maps.googleapis.com/maps/api/geocode/json";
-const GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"; // Replace with your actual key
+const GOOGLE_MAPS_API_KEY = "AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0"; // Replace with your actual key
 
 const PublicMapView = () => {
   const [offices, setOffices] = useState([]);
