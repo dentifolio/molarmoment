@@ -71,7 +71,7 @@
 }
 
 .slot-btn.selected {
-  background-color: #218838;
+  background-color: #dc3545; /* Change to red when selected */
 }
 
 .booked-forms-section {
