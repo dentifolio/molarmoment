@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "./OfficeDashboard.css"; // Add styles for better UI
 
 const states = [
@@ -21,6 +22,7 @@ const generateTimeSlots = () => {
 };
 
 const OfficeDashboard = ({ office, setOffice }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: office?.name || "",
     email: office?.email || "",
@@ -89,6 +91,11 @@ const OfficeDashboard = ({ office, setOffice }) => {
         ? prevSelectedSlots.filter((s) => s !== slot)
         : [...prevSelectedSlots, slot]
     );
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
   };
 
   return (
@@ -176,6 +183,7 @@ const OfficeDashboard = ({ office, setOffice }) => {
           <p>No booked forms to display.</p>
         )}
       </div>
+      <button className="logout-btn" onClick={handleLogout}>Log Out</button>
     </div>
   );
 };
