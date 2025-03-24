@@ -1,57 +1,86 @@
-.dashboard-container {
-  max-width: 700px;
-  margin: 20px auto;
+.office-dashboard-container {
   padding: 20px;
-  background: #fff;
+}
+
+.profile-form,
+.profile-view {
+  border: 1px solid #ccc;
+  padding: 20px;
   border-radius: 8px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
-.slots-section {
-  margin-top: 20px;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f9;
+.profile-form label {
+  display: block;
+  margin-bottom: 8px;
 }
 
-.slots-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.slot {
-  background: #28a745;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-}
-
-.add-slot {
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-}
-
-.add-slot select {
+.profile-form input,
+.profile-form select {
+  width: 100%;
   padding: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-.add-btn {
+.save-btn,
+.cancel-btn,
+.edit-btn {
+  padding: 10px 20px;
   background-color: #007bff;
   color: white;
-  padding: 8px 12px;
   border: none;
+  border-radius: 4px;
   cursor: pointer;
+  margin-right: 10px;
 }
 
-.add-btn:hover {
+.cancel-btn {
+  background-color: #6c757d;
+}
+
+.save-btn:hover,
+.cancel-btn:hover,
+.edit-btn:hover {
   background-color: #0056b3;
 }
 
 .status-message {
   margin-top: 10px;
-  font-weight: bold;
   color: green;
+}
+
+.available-slots {
+  margin-bottom: 20px;
+}
+
+.slots-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.slot-btn {
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.slot-btn.selected {
+  background-color: #218838;
+}
+
+.booked-forms-section {
+  margin-top: 20px;
+}
+
+.booked-form {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
 }
