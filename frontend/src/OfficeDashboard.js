@@ -54,16 +54,25 @@ const OfficeDashboard = ({ office, setOffice }) => {
 
   const handleSave = async () => {
     try {
-      console.log("Saving profile and slots...", selectedSlots);
-      const response = await axios.post("https://findopendentist.onrender.com/update-office", {
-        email: formData.email,
-        ...formData,
-        availableSlots: selectedSlots,
+      console.log("Saving profile with data:", formData);
+      const response = await axios.post("https://findopendentist.onrender.com/update-office-info", {
+        oldEmail: office.email, // Use the existing email for lookup
+        newEmail: formData.email,
+        name: formData.name,
+        address: formData.address,
+        phone: formData.phone,
+        website: formData.website,
+        zipCode: formData.zipCode,
+        state: formData.state,
       });
       console.log("Response from server:", response.data);
 
-      setOffice(response.data.office);
-      setMessage("✅ Profile updated successfully!");
+      if (response.data.success) {
+        setOffice(response.data.office);
+        setMessage("✅ Profile updated successfully!");
+      } else {
+        setMessage("⚠️ Error updating profile.");
+      }
       setEditing(false);
     } catch (error) {
       console.error("Profile update failed:", error.response?.data || error.message);
