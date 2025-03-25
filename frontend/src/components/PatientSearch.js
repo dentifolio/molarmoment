@@ -1,0 +1,111 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import MapView from './MapView';
+import AppointmentBooking from './AppointmentBooking';
+import { io } from 'socket.io-client';
+
+function PatientSearch() {
+  const [zipCode, setZipCode] = useState('');
+  const [radius, setRadius] = useState(5);
+  const [offices, setOffices] = useState([]);
+  const [selectedOffice, setSelectedOffice] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  
+  // Connect to Socket.io to get real-time updates
+  const socket = io('http://localhost:5000');
+
+  useEffect(() => {
+    socket.on('availabilityUpdated', () => {
+      fetchOffices();
+    });
+    return () => socket.disconnect();
+  }, []);
+
+  const fetchOffices = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/search-offices?zipCode=${zipCode}&radius=${radius}`);
+      setOffices(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchOffices();
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Find an Open Dentist</h2>
+      <form onSubmit={handleSearch} className="mb-4">
+        <input 
+          type="text" 
+          placeholder="ZIP Code" 
+          value={zipCode} 
+          onChange={(e) => setZipCode(e.target.value)}
+          className="border p-2 m-2"
+        />
+        <select 
+          value={radius} 
+          onChange={(e) => setRadius(e.target.value)} 
+          className="border p-2 m-2"
+        >
+          <option value="1">1 mile</option>
+          <option value="5">5 miles</option>
+          <option value="10">10 miles</option>
+        </select>
+        <button type="submit" className="bg-blue-500 text-white p-2 m-2">
+          Search
+        </button>
+      </form>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <h3 className="text-lg font-bold">Available Offices</h3>
+          <ul>
+            {offices.map((office) => (
+              <li key={office.id} className="border p-2 m-2">
+                <h4 className="font-bold">{office.name}</h4>
+                <p>{office.address}</p>
+                <p>Available Slots:</p>
+                <ul>
+                  {office.availableSlots && office.availableSlots.map((slot, idx) => (
+                    <li key={idx}>
+                      <button 
+                        onClick={() => {
+                          setSelectedOffice(office);
+                          setSelectedSlot(slot);
+                        }}
+                        className="text-blue-500 underline"
+                      >
+                        {slot}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <MapView 
+            offices={offices} 
+            onMarkerClick={(office, slot) => {
+              setSelectedOffice(office);
+              setSelectedSlot(slot);
+            }} 
+          />
+        </div>
+      </div>
+      {selectedOffice && selectedSlot && (
+        <AppointmentBooking 
+          office={selectedOffice} 
+          slot={selectedSlot} 
+          onClose={() => { setSelectedOffice(null); setSelectedSlot(null); }} 
+        />
+      )}
+    </div>
+  );
+}
+
+export default PatientSearch;
