@@ -55,11 +55,11 @@ const OfficeDashboard = ({ office, setOffice }) => {
       });
 
       setOffice(response.data.office);
-      setMessage("â Profile updated successfully!");
+      setMessage("✅ Profile updated successfully!");
       setEditing(false);
     } catch (error) {
       console.error("Profile update failed:", error.response?.data || error.message);
-      setMessage("â ï¸ Error updating profile. Please try again.");
+      setMessage("⚠️ Error updating profile. Please try again.");
     }
   };
 
