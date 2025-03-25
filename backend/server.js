@@ -1,289 +1,161 @@
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const fs = require("fs");
-const zipcodes = require("zipcodes");
-const WebSocket = require("ws");
-const { db } = require("./firebaseAdmin"); // Firebase Firestore
-const API_BASE_URL = "https://findopendentist.onrender.com"; // ✅ Ensure HTTPS is used
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const admin = require('firebase-admin');
+const http = require('http');
+const { Server } = require('socket.io');
+const cron = require('node-cron');
+
+// Initialize Firebase Admin with your service account credentials.
+// Place your service account JSON file in the backend folder (do not commit this file to source control).
+const serviceAccount = require('./serviceAccountKey.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
 
 const app = express();
-const server = require("http").createServer(app);
-const wss = new WebSocket.Server({ server });
-
-app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
 
-// ✅ **Daily Reset Function**
-const resetDailyAppointments = async () => {
-  try {
-    const snapshot = await db.collection("appointments").get();
-    snapshot.forEach((doc) => {
-      doc.ref.delete();
-    });
-    console.log("🔄 Daily reset completed. All appointments cleared.");
-  } catch (error) {
-    console.error("❌ Error clearing appointments:", error);
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*"
   }
-};
+});
 
-// ✅ **Schedule Daily Reset at Midnight**
-const scheduleDailyReset = () => {
-  const now = new Date();
-  const nextMidnight = new Date(now);
-  nextMidnight.setHours(24, 0, 0, 0); // Set to midnight
+// Socket.io connection – used to broadcast availability changes
+io.on('connection', (socket) => {
+  console.log('Client connected: ' + socket.id);
+});
 
-  const timeUntilMidnight = nextMidnight - now;
-  console.log(`⏳ Next reset scheduled in ${timeUntilMidnight / 1000 / 60} minutes`);
+// --- API Endpoints ---
 
-  setTimeout(() => {
-    resetDailyAppointments();
-    setInterval(resetDailyAppointments, 24 * 60 * 60 * 1000); // Reset every 24 hours
-  }, timeUntilMidnight);
-};
-scheduleDailyReset();
-
-// ✅ **WebSocket - Broadcast Update**
-const broadcastUpdate = async () => {
+// POST /signup – Office registration
+app.post('/signup', async (req, res) => {
   try {
-    const snapshot = await db.collection("appointments").get();
-    const appointments = snapshot.docs.map(doc => doc.data());
-
-    const updatedData = JSON.stringify({ type: "update", appointments });
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(updatedData);
-      }
-    });
+    const { email, password, name, phone, address, website, zipCode } = req.body;
+    // In production, make sure to hash passwords and validate inputs
+    const newOffice = { email, password, name, phone, address, website, zipCode, availableSlots: [] };
+    const docRef = await db.collection('offices').add(newOffice);
+    res.status(201).json({ id: docRef.id, ...newOffice });
   } catch (error) {
-    console.error("❌ Error broadcasting updates:", error);
+    res.status(500).json({ error: error.message });
   }
-};
+});
 
-app.post("/signup", async (req, res) => {
-  const { email, password, name, phone, address, website, zipCode, state } = req.body;
-
+// POST /login – Login validation
+app.post('/login', async (req, res) => {
   try {
-    const existingUser = await db.collection("offices").where("email", "==", email).get();
-    if (!existingUser.empty) {
-      return res.status(400).json({ message: "Email already exists" });
+    const { email, password } = req.body;
+    const snapshot = await db.collection('offices')
+      .where('email', '==', email)
+      .where('password', '==', password)
+      .get();
+    if (snapshot.empty) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
-
-    const newOffice = {
-      email,
-      password,
-      name,
-      phone,
-      address,
-      website,
-      zipCode,
-      state,
-      availableSlots: [],
-      bookedAppointments: [],
-      createdAt: new Date(),
-    };
-
-    await db.collection("offices").add(newOffice);
-
-    console.log("✅ New office registered:", newOffice);
-    res.status(201).json({ success: true, office: newOffice });
-  } catch (error) {
-    console.error("❌ Error in signup:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-// ✅ **Book an Appointment**
-app.post("/book-slot", async (req, res) => {
-  const { officeId, timeSlot, patientName, patientEmail, patientPhone, reason, paymentMethod } = req.body;
-
-  try {
-    const appointmentRef = db.collection("appointments").doc();
-    await appointmentRef.set({
-      officeId,
-      timeSlot,
-      patientName,
-      patientEmail,
-      patientPhone,
-      reason,
-      paymentMethod,
-      createdAt: new Date(),
+    let office;
+    snapshot.forEach(doc => {
+      office = { id: doc.id, ...doc.data() };
     });
-
-    broadcastUpdate();
-    res.json({ success: true, message: "Appointment booked successfully!" });
+    res.status(200).json(office);
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error booking appointment", error });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// ✅ **Fetch Active Offices**
-app.get("/active-offices", async (req, res) => {
+// GET /active-offices – List all offices with available slots
+app.get('/active-offices', async (req, res) => {
   try {
-    const snapshot = await db.collection("offices").get();
-    const offices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    res.json(offices);
+    // Query for offices where availableSlots is not empty.
+    const snapshot = await db.collection('offices').where('availableSlots', '!=', []).get();
+    let offices = [];
+    snapshot.forEach(doc => {
+      offices.push({ id: doc.id, ...doc.data() });
+    });
+    res.status(200).json(offices);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching offices", error });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// ✅ **Find Offices by ZIP & Radius**
-app.get("/search-offices", async (req, res) => {
+// GET /search-offices?zipCode=XXXXX&radius=X – Filtered search
+app.get('/search-offices', async (req, res) => {
   try {
     const { zipCode, radius } = req.query;
-
-    if (!zipCode || !radius) {
-      return res.status(400).json({ message: "ZIP code and radius are required." });
-    }
-
-    // Fetch offices from Firestore
-    const snapshot = await db.collection("offices").get();
-    const offices = snapshot.docs.map(doc => doc.data());
-
-    // Filter offices by distance
-    const userLocation = zipcodes.lookup(zipCode);
-    if (!userLocation) {
-      return res.status(400).json({ message: "Invalid ZIP code" });
-    }
-
-    const nearbyOffices = offices.filter(office => {
-      const officeLocation = zipcodes.lookup(office.zipCode);
-      if (!officeLocation) return false;
-      const distance = zipcodes.distance(zipCode, office.zipCode);
-      return distance <= parseInt(radius);
+    // For simplicity, we filter by exact zip code match.
+    // In production, use geolocation to calculate distances.
+    const snapshot = await db.collection('offices').where('zipCode', '==', zipCode).get();
+    let offices = [];
+    snapshot.forEach(doc => {
+      offices.push({ id: doc.id, ...doc.data() });
     });
-
-    res.json(nearbyOffices);
+    res.status(200).json(offices);
   } catch (error) {
-    console.error("❌ Error fetching offices:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// ✅ **Fetch Appointments for Office**
-app.get("/appointments", async (req, res) => {
+// POST /book-slot – Patient booking
+app.post('/book-slot', async (req, res) => {
   try {
-    const { officeId } = req.query;
-    const snapshot = await db.collection("appointments").where("officeId", "==", officeId).get();
-
-    if (snapshot.empty) {
-      return res.json([]); // Return empty array if no appointments
+    const { officeId, slot, patientName, contact, reason } = req.body;
+    // Create a new appointment record
+    const newAppointment = { officeId, slot, patientName, contact, reason, bookedAt: new Date() };
+    await db.collection('appointments').add(newAppointment);
+    // Remove the booked slot from the office's availableSlots
+    const officeRef = db.collection('offices').doc(officeId);
+    const officeDoc = await officeRef.get();
+    if (officeDoc.exists) {
+      const data = officeDoc.data();
+      const updatedSlots = data.availableSlots.filter(s => s !== slot);
+      await officeRef.update({ availableSlots: updatedSlots });
+      // Notify all clients about the update
+      io.emit('availabilityUpdated', { officeId, availableSlots: updatedSlots });
+      res.status(200).json({ message: 'Appointment booked' });
+    } else {
+      res.status(404).json({ error: 'Office not found' });
     }
-
-    const appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    res.json(appointments);
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error fetching appointments", error });
+    res.status(500).json({ error: error.message });
   }
 });
 
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
+// POST /update-availability – Office updates their slots
+app.post('/update-availability', async (req, res) => {
   try {
-    const snapshot = await db.collection("offices").where("email", "==", email).get();
-    if (snapshot.empty) {
-      return res.status(401).json({ success: false, message: "Invalid email or password" });
-    }
-
-    const office = snapshot.docs[0].data();
-    if (office.password !== password) {
-      return res.status(401).json({ success: false, message: "Invalid email or password" });
-    }
-
-    res.json({ success: true, office });
-  } catch (error) {
-    console.error("Login Error:", error);
-    res.status(500).json({ success: false, message: "Error during login", error });
-  }
-});
-
-// ✅ **Update Office Information**
-app.post("/update-office-info", async (req, res) => {
-  const { oldEmail, newEmail, name, address, phone, website, zipCode, state } = req.body;
-  console.log("Received update request:", req.body);
-
-  try {
-    const snapshot = await db.collection("offices").where("email", "==", oldEmail).get();
-
-    if (snapshot.empty) {
-      return res.status(404).json({ message: "Office not found" });
-    }
-
-    const officeRef = snapshot.docs[0].ref;
-
-    // Prevent duplicate email registration
-    if (newEmail !== oldEmail) {
-      const existingEmail = await db.collection("offices").where("email", "==", newEmail).get();
-      if (!existingEmail.empty) {
-        return res.status(400).json({ message: "Email already exists" });
-      }
-    }
-
-    await officeRef.update({ email: newEmail, name, address, phone, website, zipCode, state });
-    console.log(`✅ Updated office info for: ${newEmail}`);
-
-    // Fetch updated office details
-    const updatedSnapshot = await officeRef.get();
-    const updatedOffice = updatedSnapshot.data();
-    console.log("Updated office details:", updatedOffice);
-
-    res.json({ success: true, office: updatedOffice });
-  } catch (error) {
-    console.error("Error updating office:", error);
-    res.status(500).json({ message: "Error updating office", error });
-  }
-});
-
-// ✅ **Update Available Slots**
-app.post("/update-availability", async (req, res) => {
-  const { email, availableSlots } = req.body;
-
-  try {
-    const snapshot = await db.collection("offices").where("email", "==", email).get();
-
-    if (snapshot.empty) {
-      return res.status(404).json({ message: "Office not found" });
-    }
-
-    const officeRef = snapshot.docs[0].ref;
+    // In a real app, verify the office identity via authentication.
+    const { officeId, availableSlots } = req.body;
+    const officeRef = db.collection('offices').doc(officeId);
     await officeRef.update({ availableSlots });
-
-    broadcastUpdate();
-    res.json({ success: true, message: "Availability updated successfully!" });
+    io.emit('availabilityUpdated', { officeId, availableSlots });
+    res.status(200).json({ message: 'Availability updated', availableSlots });
   } catch (error) {
-    res.status(500).json({ message: "Error updating availability", error });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// ✅ **WebSocket - Live Updates**
-wss.on("connection", async (ws) => {
-  console.log("🔌 New WebSocket connection established");
-
+// --- Daily Reset Job ---
+// Clear all availableSlots at midnight to prevent stale availability.
+cron.schedule('0 0 * * *', async () => {
+  console.log('Resetting appointment slots...');
   try {
-    const snapshot = await db.collection("appointments").get();
-    const appointments = snapshot.docs.map(doc => doc.data());
-
-    ws.send(JSON.stringify({ type: "update", appointments }));
+    const snapshot = await db.collection('offices').get();
+    snapshot.forEach(async (doc) => {
+      await doc.ref.update({ availableSlots: [] });
+    });
+    io.emit('availabilityUpdated', { message: 'Daily reset completed' });
   } catch (error) {
-    console.error("❌ Error sending updates to client:", error);
+    console.error('Error resetting slots:', error);
   }
-
-  ws.on("close", () => {
-    console.log("🔌 WebSocket client disconnected");
-  });
 });
 
-// ✅ **Logout Route**
-app.post("/logout", (req, res) => {
-  console.log("🚪 Office logged out");
-  res.json({ message: "Logged out successfully" });
-});
-
-// ✅ **Start Server**
+// Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
