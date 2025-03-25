@@ -50,7 +50,7 @@ const PublicMapView = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="w-full h-[300px] md:h-[450px] mt-16">
-        <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY">
+        <LoadScript googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0">
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '600px' }}
             center={{ lat: 41.3851, lng: 2.1734 }}
