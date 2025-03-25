@@ -17,6 +17,7 @@ const PublicMapView = () => {
   const fetchOffices = async () => {
     try {
       const response = await axios.get('https://findopendentist.onrender.com/offices');
+      console.log('Fetched Offices:', response.data); // Debugging log
       setOffices(response.data);
     } catch (error) {
       console.error('Error fetching offices:', error);
