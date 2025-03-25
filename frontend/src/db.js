@@ -11,3 +11,4 @@ export const getAppointments = async () => {
   const snapshot = await getDocs(collection(db, "appointments"));
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
+
