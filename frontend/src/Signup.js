@@ -18,6 +18,7 @@ const Signup = () => {
     }
     try {
       const response = await axios.post('https://findopendentist.onrender.com/signup', formData);
+      console.log('Signup response:', response.data);
       if (response.data.success) {
         navigate('/dashboard');
       } else {
