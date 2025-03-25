@@ -54,12 +54,12 @@ const PublicMapView = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-100">
       {/* ✅ MAP SECTION */}
-      <div className="w-full h-[300px] md:h-[450px]">
+      <div className="w-full h-[300px] md:h-[450px] mt-16">
         <LoadScript googleMapsApiKey="AIzaSyDGBHVURcrUdjYNhCDNjFBWawsv612pQU0">
           <GoogleMap
-            mapContainerClassName="map-container"
+            mapContainerClassName="w-full h-full"
             center={center}
             zoom={12}
           >
@@ -85,9 +85,21 @@ const PublicMapView = () => {
                 position={selectedOffice.location}
                 onCloseClick={() => setSelectedOffice(null)}
               >
-                <div>
-                  <h3 className="font-bold">{selectedOffice.name}</h3>
-                  <p className="text-sm">{selectedOffice.address}</p>
+                <div className="p-2">
+                  <h3 className="font-bold text-lg">{selectedOffice.name}</h3>
+                  <p className="text-sm text-gray-600">{selectedOffice.address}</p>
+                  <p className="text-sm text-gray-600">Office Hours: {selectedOffice.hours}</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedOffice.availableSlots.map((slot, i) => (
+                      <button
+                        key={i}
+                        className="bg-green-500 text-white text-sm px-3 py-1 rounded hover:bg-green-600"
+                        onClick={() => openBookingForm(selectedOffice, slot)}
+                      >
+                        {slot}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </InfoWindow>
             )}
@@ -96,10 +108,10 @@ const PublicMapView = () => {
       </div>
 
       {/* ✅ SEARCH + RESULTS SECTION */}
-      <div className="px-4 py-6 bg-gray-50">
+      <div className="px-4 py-6 bg-white shadow-md rounded-lg mx-4 mt-4">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-xl font-semibold mb-2">Find Available Appointments</h2>
-          <p className="mb-4 text-sm text-gray-600">
+          <h2 className="text-xl font-semibold mb-2 text-center">Find Available Appointments</h2>
+          <p className="mb-4 text-sm text-gray-600 text-center">
             Enter your ZIP code and search radius below to find dentists with open slots.
           </p>
 
@@ -133,7 +145,7 @@ const PublicMapView = () => {
             offices.map((office) => (
               <div
                 key={office.id}
-                className="bg-white p-4 mb-4 rounded shadow"
+                className="bg-white p-4 mb-4 rounded shadow-md"
               >
                 <h3 className="font-bold text-lg mb-1">{office.name}</h3>
                 <p className="text-sm flex items-center mb-1">
@@ -166,7 +178,7 @@ const PublicMapView = () => {
               </div>
             ))
           ) : (
-            <p className="text-sm text-gray-500">No available appointments to display.</p>
+            <p className="text-sm text-gray-500 text-center">No available appointments to display.</p>
           )}
         </div>
       </div>
