@@ -25,38 +25,36 @@ function AppointmentBooking({ office, slot, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
-      <div className="bg-white rounded p-6 w-11/12 max-w-lg">
-        <h2 className="text-2xl font-bold mb-4 text-center">
-          Book Appointment at {office.name}
-        </h2>
-        <p className="text-center mb-4">Time Slot: {slot}</p>
-        <form onSubmit={handleBooking} className="space-y-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div className="bg-white p-4 max-w-md w-full rounded">
+        <h2 className="text-xl font-bold mb-4">Book Appointment at {office.name}</h2>
+        <p>Time Slot: {slot}</p>
+        <form onSubmit={handleBooking} className="mt-4">
           <input
             type="text"
             placeholder="Your Name"
             value={patientName}
             onChange={(e) => setPatientName(e.target.value)}
-            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 m-2 w-full"
           />
           <input
             type="text"
             placeholder="Contact Information"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
-            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 m-2 w-full"
           />
           <textarea
             placeholder="Reason for Visit"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border p-2 m-2 w-full"
           ></textarea>
-          <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">
+          <button type="submit" className="bg-blue-600 text-white p-2 m-2 w-full rounded">
             Book Appointment
           </button>
         </form>
-        <button onClick={onClose} className="w-full mt-4 bg-red-600 text-white p-2 rounded hover:bg-red-700 transition">
+        <button onClick={onClose} className="bg-red-600 text-white p-2 m-2 w-full rounded">
           Cancel
         </button>
       </div>
