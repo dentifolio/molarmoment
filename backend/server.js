@@ -7,6 +7,7 @@ const { Server } = require('socket.io');
 const cron = require('node-cron');
 
 // Initialize Firebase Admin with your service account credentials.
+// Ensure you have your serviceAccountKey.json file in this folder.
 const serviceAccount = require('./serviceAccountKey.json');
 
 admin.initializeApp({
@@ -21,9 +22,7 @@ app.use(bodyParser.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: "*"
-  }
+  cors: { origin: "*" }
 });
 
 // Socket.io connection – used to broadcast availability changes and appointment bookings
@@ -37,17 +36,17 @@ io.on('connection', (socket) => {
 app.post('/signup', async (req, res) => {
   try {
     const { email, password, name, phone, address, website, zipCode, lat, lng } = req.body;
-    const newOffice = {
-      email,
-      password,
-      name,
-      phone,
-      address,
-      website,
-      zipCode,
-      lat: lat || null,
+    const newOffice = { 
+      email, 
+      password, 
+      name, 
+      phone, 
+      address, 
+      website, 
+      zipCode, 
+      lat: lat || null, 
       lng: lng || null,
-      availableSlots: []
+      availableSlots: [] 
     };
     const docRef = await db.collection('offices').add(newOffice);
     res.status(201).json({ id: docRef.id, ...newOffice });
@@ -77,7 +76,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// GET /active-offices – List all offices with available slots (non-empty)
+// GET /active-offices – List all offices with available slots (non‑empty)
 app.get('/active-offices', async (req, res) => {
   try {
     const snapshot = await db.collection('offices').where('availableSlots', '!=', []).get();
@@ -120,7 +119,7 @@ app.post('/book-slot', async (req, res) => {
       const data = officeDoc.data();
       const updatedSlots = data.availableSlots.filter(s => s !== slot);
       await officeRef.update({ availableSlots: updatedSlots });
-      // Notify all clients about the updated availability
+      // Broadcast the updated availability to all clients
       io.emit('availabilityUpdated', { officeId, availableSlots: updatedSlots });
       // Notify the office about the booking
       io.emit('appointmentBooked', { officeId, slot, patientName });
