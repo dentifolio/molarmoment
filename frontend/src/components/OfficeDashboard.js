@@ -14,6 +14,7 @@ const OfficeDashboard = () => {
   const [officeId] = useState(storedOfficeId);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmationMessage, setConfirmationMessage] = useState('');
 
   // Socket.io connection
   const socket = io('https://findopendentist.onrender.com');
@@ -69,6 +70,8 @@ const OfficeDashboard = () => {
         officeId,
         availableSlots: updatedSlots,
       });
+      setConfirmationMessage('Availability updated successfully!');
+      setTimeout(() => setConfirmationMessage(''), 3000); // Clear message after 3 seconds
     } catch (error) {
       console.error('Error updating availability:', error);
     }
@@ -82,7 +85,16 @@ const OfficeDashboard = () => {
     <div className="max-w-md mx-auto p-4">
       <h2 className="text-xl font-bold mb-4">Office Dashboard</h2>
       <p>Click a time slot to toggle its availability.</p>
-      {/* Render time slot buttons, etc. */}
+      {availableSlots.map((slot) => (
+        <button
+          key={slot}
+          onClick={() => toggleSlot(slot)}
+          className={`m-2 p-2 ${availableSlots.includes(slot) ? 'bg-green-500' : 'bg-red-500'} text-white`}
+        >
+          {slot}
+        </button>
+      ))}
+      {confirmationMessage && <p className="mt-4 text-green-600">{confirmationMessage}</p>}
     </div>
   );
 };
