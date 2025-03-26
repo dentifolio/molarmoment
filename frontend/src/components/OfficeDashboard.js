@@ -120,6 +120,7 @@ const OfficeDashboard = () => {
             {appointments.map((appointment, index) => (
               <li key={index} className="mb-2 p-2 border rounded">
                 <p><strong>Patient Name:</strong> {appointment.patientName}</p>
+                <p><strong>Contact Information:</strong> {appointment.contactInfo}</p>
                 <p><strong>Time Slot:</strong> {appointment.slot}</p>
               </li>
             ))}
