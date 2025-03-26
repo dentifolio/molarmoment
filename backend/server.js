@@ -7,7 +7,6 @@ const { Server } = require('socket.io');
 const cron = require('node-cron');
 
 // Initialize Firebase Admin with your service account credentials.
-// Ensure you have your serviceAccountKey.json file in this folder.
 const serviceAccount = require('./serviceAccountKey.json');
 
 admin.initializeApp({
@@ -25,14 +24,12 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-// Socket.io connection – used to broadcast availability changes and appointment bookings
+// Socket.io connection – broadcast availability updates and appointment bookings.
 io.on('connection', (socket) => {
   console.log('Client connected: ' + socket.id);
 });
 
-// --- API Endpoints ---
-
-// POST /signup – Office registration
+// POST /signup – Office registration.
 app.post('/signup', async (req, res) => {
   try {
     const { email, password, name, phone, address, website, zipCode, lat, lng } = req.body;
@@ -55,7 +52,7 @@ app.post('/signup', async (req, res) => {
   }
 });
 
-// POST /login – Login validation
+// POST /login – Login validation.
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -76,7 +73,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// GET /active-offices – List all offices with available slots (non‑empty)
+// GET /active-offices – Return offices with available slots.
 app.get('/active-offices', async (req, res) => {
   try {
     const snapshot = await db.collection('offices').where('availableSlots', '!=', []).get();
@@ -90,7 +87,7 @@ app.get('/active-offices', async (req, res) => {
   }
 });
 
-// GET /search-offices?zipCode=XXXXX&radius=X – Filtered search (simplified by zipCode)
+// GET /search-offices – Filtered search by ZIP code.
 app.get('/search-offices', async (req, res) => {
   try {
     const { zipCode, radius } = req.query;
@@ -105,23 +102,19 @@ app.get('/search-offices', async (req, res) => {
   }
 });
 
-// POST /book-slot – Patient booking
+// POST /book-slot – Patient booking.
 app.post('/book-slot', async (req, res) => {
   try {
     const { officeId, slot, patientName, contact, reason } = req.body;
-    // Create a new appointment record
     const newAppointment = { officeId, slot, patientName, contact, reason, bookedAt: new Date() };
     await db.collection('appointments').add(newAppointment);
-    // Remove the booked slot from the office's availableSlots
     const officeRef = db.collection('offices').doc(officeId);
     const officeDoc = await officeRef.get();
     if (officeDoc.exists) {
       const data = officeDoc.data();
       const updatedSlots = data.availableSlots.filter(s => s !== slot);
       await officeRef.update({ availableSlots: updatedSlots });
-      // Broadcast the updated availability to all clients
       io.emit('availabilityUpdated', { officeId, availableSlots: updatedSlots });
-      // Notify the office about the booking
       io.emit('appointmentBooked', { officeId, slot, patientName });
       res.status(200).json({ message: 'Appointment booked' });
     } else {
@@ -132,7 +125,7 @@ app.post('/book-slot', async (req, res) => {
   }
 });
 
-// POST /update-availability – Office updates their slots
+// POST /update-availability – Office updates their slots.
 app.post('/update-availability', async (req, res) => {
   try {
     const { officeId, availableSlots } = req.body;
@@ -145,8 +138,7 @@ app.post('/update-availability', async (req, res) => {
   }
 });
 
-// --- Daily Reset Job ---
-// Clear all availableSlots at midnight to prevent stale availability.
+// Daily reset job to clear available slots.
 cron.schedule('0 0 * * *', async () => {
   console.log('Resetting appointment slots...');
   try {
@@ -160,7 +152,6 @@ cron.schedule('0 0 * * *', async () => {
   }
 });
 
-// Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
