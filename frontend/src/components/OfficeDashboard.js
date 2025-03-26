@@ -85,15 +85,17 @@ const OfficeDashboard = () => {
     <div className="max-w-md mx-auto p-4">
       <h2 className="text-xl font-bold mb-4">Office Dashboard</h2>
       <p>Click a time slot to toggle its availability.</p>
-      {availableSlots.map((slot) => (
-        <button
-          key={slot}
-          onClick={() => toggleSlot(slot)}
-          className={`m-2 p-2 ${availableSlots.includes(slot) ? 'bg-green-500' : 'bg-red-500'} text-white`}
-        >
-          {slot}
-        </button>
-      ))}
+      <div className="grid grid-cols-3 gap-4">
+        {['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00'].map((slot) => (
+          <button
+            key={slot}
+            onClick={() => toggleSlot(slot)}
+            className={`m-2 p-2 ${availableSlots.includes(slot) ? 'bg-green-500' : 'bg-red-500'} text-white`}
+          >
+            {slot}
+          </button>
+        ))}
+      </div>
       {confirmationMessage && <p className="mt-4 text-green-600">{confirmationMessage}</p>}
     </div>
   );
