@@ -1,4 +1,3 @@
-// src/utils/timeSlots.js
 export function generateTimeSlots(startHour = 9, endHour = 17, interval = 30) {
   const slots = [];
   let current = new Date();
