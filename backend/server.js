@@ -7,7 +7,6 @@ const { Server } = require('socket.io');
 const cron = require('node-cron');
 
 // Initialize Firebase Admin with your service account credentials.
-// Place your service account JSON file in the backend folder (do not commit this file to source control).
 const serviceAccount = require('./serviceAccountKey.json');
 
 admin.initializeApp({
@@ -27,7 +26,7 @@ const io = new Server(server, {
   }
 });
 
-// Socket.io connection – used to broadcast availability changes
+// Socket.io connection – used to broadcast availability changes and appointment bookings
 io.on('connection', (socket) => {
   console.log('Client connected: ' + socket.id);
 });
@@ -37,9 +36,19 @@ io.on('connection', (socket) => {
 // POST /signup – Office registration
 app.post('/signup', async (req, res) => {
   try {
-    const { email, password, name, phone, address, website, zipCode } = req.body;
-    // In production, make sure to hash passwords and validate inputs
-    const newOffice = { email, password, name, phone, address, website, zipCode, availableSlots: [] };
+    const { email, password, name, phone, address, website, zipCode, lat, lng } = req.body;
+    const newOffice = {
+      email,
+      password,
+      name,
+      phone,
+      address,
+      website,
+      zipCode,
+      lat: lat || null,
+      lng: lng || null,
+      availableSlots: []
+    };
     const docRef = await db.collection('offices').add(newOffice);
     res.status(201).json({ id: docRef.id, ...newOffice });
   } catch (error) {
@@ -68,10 +77,9 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// GET /active-offices – List all offices with available slots
+// GET /active-offices – List all offices with available slots (non-empty)
 app.get('/active-offices', async (req, res) => {
   try {
-    // Query for offices where availableSlots is not empty.
     const snapshot = await db.collection('offices').where('availableSlots', '!=', []).get();
     let offices = [];
     snapshot.forEach(doc => {
@@ -83,12 +91,10 @@ app.get('/active-offices', async (req, res) => {
   }
 });
 
-// GET /search-offices?zipCode=XXXXX&radius=X – Filtered search
+// GET /search-offices?zipCode=XXXXX&radius=X – Filtered search (simplified by zipCode)
 app.get('/search-offices', async (req, res) => {
   try {
     const { zipCode, radius } = req.query;
-    // For simplicity, we filter by exact zip code match.
-    // In production, use geolocation to calculate distances.
     const snapshot = await db.collection('offices').where('zipCode', '==', zipCode).get();
     let offices = [];
     snapshot.forEach(doc => {
@@ -114,8 +120,10 @@ app.post('/book-slot', async (req, res) => {
       const data = officeDoc.data();
       const updatedSlots = data.availableSlots.filter(s => s !== slot);
       await officeRef.update({ availableSlots: updatedSlots });
-      // Notify all clients about the update
+      // Notify all clients about the updated availability
       io.emit('availabilityUpdated', { officeId, availableSlots: updatedSlots });
+      // Notify the office about the booking
+      io.emit('appointmentBooked', { officeId, slot, patientName });
       res.status(200).json({ message: 'Appointment booked' });
     } else {
       res.status(404).json({ error: 'Office not found' });
@@ -128,7 +136,6 @@ app.post('/book-slot', async (req, res) => {
 // POST /update-availability – Office updates their slots
 app.post('/update-availability', async (req, res) => {
   try {
-    // In a real app, verify the office identity via authentication.
     const { officeId, availableSlots } = req.body;
     const officeRef = db.collection('offices').doc(officeId);
     await officeRef.update({ availableSlots });
