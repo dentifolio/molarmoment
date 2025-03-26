@@ -9,7 +9,7 @@ function AppointmentBooking({ office, slot, onClose }) {
   const handleBooking = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://findopendentist.onrender.com/book-slot', {
+      await axios.post('https://findopendentist.onrender.com/book-slot', {
         officeId: office.id,
         slot,
         patientName,
