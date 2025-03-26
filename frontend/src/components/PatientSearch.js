@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import MapView from './MapView';
 import AppointmentBooking from './AppointmentBooking';
@@ -10,16 +10,21 @@ function PatientSearch() {
   const [offices, setOffices] = useState([]);
   const [selectedOffice, setSelectedOffice] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const socket = io('https://findopendentist.onrender.com');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
+  // Initialize Socket.io connection once.
   useEffect(() => {
+    const socket = io('https://findopendentist.onrender.com');
     socket.on('availabilityUpdated', () => {
       fetchOffices();
     });
     return () => socket.disconnect();
   }, []);
 
-  const fetchOffices = async () => {
+  const fetchOffices = useCallback(async () => {
+    setLoading(true);
+    setError('');
     try {
       const response = await axios.get(
         `https://findopendentist.onrender.com/search-offices?zipCode=${zipCode}&radius=${radius}`
@@ -27,11 +32,18 @@ function PatientSearch() {
       setOffices(response.data);
     } catch (error) {
       console.error(error);
+      setError('Failed to load offices. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [zipCode, radius]);
 
   const handleSearch = (e) => {
     e.preventDefault();
+    if (zipCode.trim() === '') {
+      setError('Please enter a ZIP code');
+      return;
+    }
     fetchOffices();
   };
 
@@ -62,6 +74,8 @@ function PatientSearch() {
           Search
         </button>
       </form>
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      {loading && <p className="text-center mb-4">Loading...</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <h3 className="text-xl font-bold mb-2">Available Offices</h3>
