@@ -3,34 +3,11 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import { Navigate } from 'react-router-dom';
 
-// Utility to generate time slots from 9:00 AM to 5:00 PM every 30 min
-function generateTimeSlots(startHour = 9, endHour = 17, interval = 30) {
-  const slots = [];
-  let current = new Date();
-  current.setHours(startHour, 0, 0, 0);
-  const end = new Date();
-  end.setHours(endHour, 0, 0, 0);
-
-  while (current < end) {
-    const hours = current.getHours();
-    const minutes = current.getMinutes();
-    slots.push(formatTime(hours, minutes));
-    current.setMinutes(current.getMinutes() + interval);
-  }
-  return slots;
-}
-
-function formatTime(hours, minutes) {
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  const twelveHour = hours % 12 || 12;
-  const minString = minutes.toString().padStart(2, '0');
-  return `${twelveHour}:${minString} ${ampm}`;
-}
-
 const OfficeDashboard = () => {
-  // Check if user is logged in
+  // Check if user is logged in by looking for an officeId in localStorage
   const storedOfficeId = localStorage.getItem('officeId');
   if (!storedOfficeId) {
+    // If not logged in, redirect to /login
     return <Navigate to="/login" replace />;
   }
 
@@ -38,14 +15,10 @@ const OfficeDashboard = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Generate a list of time slots
-  const allTimeSlots = generateTimeSlots();
-
-  // Socket.io
+  // Socket.io connection
   const socket = io('https://findopendentist.onrender.com');
 
   useEffect(() => {
-    // Fetch current availability
     async function fetchAvailability() {
       setLoading(true);
       try {
@@ -82,20 +55,15 @@ const OfficeDashboard = () => {
     };
   }, [officeId, socket]);
 
-  // Toggle a slot's availability
   const toggleSlot = async (slot) => {
     let updatedSlots = [];
     if (availableSlots.includes(slot)) {
-      // Remove slot
       updatedSlots = availableSlots.filter((s) => s !== slot);
     } else {
-      // Add slot
       updatedSlots = [...availableSlots, slot];
     }
-    // Optimistically update UI
     setAvailableSlots(updatedSlots);
 
-    // Notify backend
     try {
       await axios.post('https://findopendentist.onrender.com/update-availability', {
         officeId,
@@ -107,30 +75,14 @@ const OfficeDashboard = () => {
   };
 
   if (loading) {
-    return <div className="p-4">Loading...</div>;
+    return <div>Loading...</div>;
   }
 
   return (
     <div className="max-w-md mx-auto p-4">
       <h2 className="text-xl font-bold mb-4">Office Dashboard</h2>
       <p>Click a time slot to toggle its availability.</p>
-      <div className="grid grid-cols-3 gap-2 mt-4">
-        {allTimeSlots.map((slot) => {
-          const isAvailable = availableSlots.includes(slot);
-          return (
-            <button
-              key={slot}
-              onClick={() => toggleSlot(slot)}
-              className={`p-2 border rounded transition ${
-                isAvailable ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'
-              }`}
-            >
-              {slot}
-            </button>
-          );
-        })}
-      </div>
-      <p className="mt-4">Selected slots automatically update for patients.</p>
+      {/* Render time slot buttons, etc. */}
     </div>
   );
 };
