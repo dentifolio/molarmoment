@@ -8,15 +8,14 @@ function OfficeDashboard() {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Generate a list of time slots (e.g., 9:00 AM to 5:00 PM every 30 minutes)
+  // Generate time slots (9:00 AM to 5:00 PM, every 30 minutes)
   const allTimeSlots = generateTimeSlots(9, 17, 30);
 
-  // Connect to the Socket.io server (update URL if needed)
+  // Connect to Socket.io (update URL if needed)
   const socket = io('https://findopendentist.onrender.com');
 
-  // On mount, retrieve the office ID and fetch current availability
   useEffect(() => {
-    // In a real app, the officeId should come from your authentication flow
+    // For demo purposes, we store or use a hard-coded officeId.
     const storedOfficeId = localStorage.getItem('officeId') || 'Rs4bjoR16ZQIvkSHEtWK';
     setOfficeId(storedOfficeId);
 
@@ -40,7 +39,7 @@ function OfficeDashboard() {
     fetchAvailability();
   }, []);
 
-  // Listen for real-time updates (availability changes and new appointment bookings)
+  // Listen for real-time updates
   useEffect(() => {
     socket.on('availabilityUpdated', (data) => {
       if (data.officeId === officeId && data.availableSlots) {
@@ -59,7 +58,7 @@ function OfficeDashboard() {
     };
   }, [officeId, socket]);
 
-  // Toggle a slot on/off and update the backend immediately
+  // Toggle a time slot's availability and update backend
   const toggleSlot = async (slot) => {
     let updatedSlots = [];
     if (availableSlots.includes(slot)) {
@@ -67,8 +66,6 @@ function OfficeDashboard() {
     } else {
       updatedSlots = [...availableSlots, slot];
     }
-
-    // Optimistic update on the UI
     setAvailableSlots(updatedSlots);
 
     try {
