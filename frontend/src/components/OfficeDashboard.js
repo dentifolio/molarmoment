@@ -41,17 +41,30 @@ const OfficeDashboard = () => {
   }, [officeId]);
 
   useEffect(() => {
+    async function fetchAppointments() {
+      try {
+        const res = await axios.get(`https://findopendentist.onrender.com/appointments?officeId=${officeId}`);
+        setAppointments(res.data);
+      } catch (error) {
+        console.error('Error fetching appointments:', error);
+      }
+    }
+
+    fetchAppointments();
+
     // Listen for real-time updates
     socket.on('availabilityUpdated', (data) => {
       if (data.officeId === officeId && data.availableSlots) {
         setAvailableSlots(data.availableSlots);
       }
     });
+
     socket.on('appointmentBooked', (data) => {
       if (data.officeId === officeId) {
         setAppointments((prevAppointments) => [...prevAppointments, data]);
       }
     });
+
     return () => {
       socket.disconnect();
     };
