@@ -7,7 +7,7 @@ function OfficeDashboard() {
   const [officeData, setOfficeData] = useState(null);
 
   // Connect to the Socket.io server
-  const socket = io('http://localhost:5000');
+  const socket = io('https://findopendentist.onrender.com');
 
   useEffect(() => {
     socket.on('availabilityUpdated', (data) => {
@@ -22,7 +22,7 @@ function OfficeDashboard() {
     const availableSlots = slots.split(',').map(s => s.trim());
     try {
       // In production, the officeId would come from authenticated user data
-      const response = await axios.post('http://localhost:5000/update-availability', { officeId: officeData?.id || 'YOUR_OFFICE_ID', availableSlots });
+      const response = await axios.post('https://findopendentist.onrender.com/update-availability', { officeId: officeData?.id || 'YOUR_OFFICE_ID', availableSlots });
       setOfficeData(response.data);
       alert('Availability updated');
     } catch (error) {

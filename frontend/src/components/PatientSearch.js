@@ -12,7 +12,7 @@ function PatientSearch() {
   const [selectedSlot, setSelectedSlot] = useState(null);
   
   // Connect to Socket.io to get real-time updates
-  const socket = io('http://localhost:5000');
+  const socket = io('https://findopendentist.onrender.com');
 
   useEffect(() => {
     socket.on('availabilityUpdated', () => {
@@ -23,7 +23,7 @@ function PatientSearch() {
 
   const fetchOffices = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/search-offices?zipCode=${zipCode}&radius=${radius}`);
+      const response = await axios.get(`https://findopendentist.onrender.com/search-offices?zipCode=${zipCode}&radius=${radius}`);
       setOffices(response.data);
     } catch (error) {
       console.error(error);

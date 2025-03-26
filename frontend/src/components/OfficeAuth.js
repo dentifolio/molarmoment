@@ -20,7 +20,7 @@ function OfficeAuth({ mode }) {
     e.preventDefault();
     try {
       const endpoint = mode === 'signup' ? '/signup' : '/login';
-      const response = await axios.post(`http://localhost:5000${endpoint}`, formData);
+      const response = await axios.post(`https://findopendentist.onrender.com${endpoint}`, formData);
       alert('Success: ' + JSON.stringify(response.data));
     } catch (error) {
       console.error(error);
