@@ -20,7 +20,6 @@ function MapView({ offices, onMarkerClick }) {
     };
 
     const initMap = () => {
-      // Default center (center of the US) or center near the first office with coordinates.
       let center = { lat: 39.8283, lng: -98.5795 };
       if (offices && offices.length > 0) {
         const firstWithCoords = offices.find(o => o.lat && o.lng);
@@ -28,7 +27,6 @@ function MapView({ offices, onMarkerClick }) {
           center = { lat: firstWithCoords.lat, lng: firstWithCoords.lng };
         }
       }
-
       googleMap.current = new window.google.maps.Map(mapRef.current, {
         center,
         zoom: 10,
@@ -37,11 +35,8 @@ function MapView({ offices, onMarkerClick }) {
     };
 
     const updateMarkers = () => {
-      // Clear previous markers.
       markers.current.forEach(marker => marker.setMap(null));
       markers.current = [];
-
-      // Add markers only for offices with valid coordinates and available slots.
       offices.forEach(office => {
         if (office.lat && office.lng && office.availableSlots && office.availableSlots.length > 0) {
           const marker = new window.google.maps.Marker({
@@ -58,15 +53,11 @@ function MapView({ offices, onMarkerClick }) {
     };
 
     loadGoogleMaps();
-
-    // Update markers when offices prop changes.
     if (window.google && googleMap.current) {
       updateMarkers();
     }
   }, [offices, onMarkerClick]);
 
-  // The container is mobile friendly:
-  // "w-full" sets full width, "h-64" (16rem) on small screens, "md:h-96" (24rem) on medium+ screens.
   return <div ref={mapRef} className="w-full h-64 md:h-96"></div>;
 }
 
