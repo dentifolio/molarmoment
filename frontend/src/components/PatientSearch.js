@@ -10,8 +10,6 @@ function PatientSearch() {
   const [offices, setOffices] = useState([]);
   const [selectedOffice, setSelectedOffice] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
-  
-  // Connect to Socket.io to get real-time updates
   const socket = io('https://findopendentist.onrender.com');
 
   useEffect(() => {
@@ -23,7 +21,9 @@ function PatientSearch() {
 
   const fetchOffices = async () => {
     try {
-      const response = await axios.get(`https://findopendentist.onrender.com/search-offices?zipCode=${zipCode}&radius=${radius}`);
+      const response = await axios.get(
+        `https://findopendentist.onrender.com/search-offices?zipCode=${zipCode}&radius=${radius}`
+      );
       setOffices(response.data);
     } catch (error) {
       console.error(error);
@@ -36,72 +36,79 @@ function PatientSearch() {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Find an Open Dentist</h2>
-      <form onSubmit={handleSearch} className="mb-4">
-        <input 
-          type="text" 
-          placeholder="ZIP Code" 
-          value={zipCode} 
+    <div className="max-w-4xl mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4 text-center">Find an Open Dentist</h2>
+      <form
+        onSubmit={handleSearch}
+        className="flex flex-col sm:flex-row items-center justify-center mb-4 space-y-2 sm:space-y-0 sm:space-x-4"
+      >
+        <input
+          type="text"
+          placeholder="ZIP Code"
+          value={zipCode}
           onChange={(e) => setZipCode(e.target.value)}
-          className="border p-2 m-2"
+          className="border p-2 rounded w-full sm:w-1/3"
         />
-        <select 
-          value={radius} 
-          onChange={(e) => setRadius(e.target.value)} 
-          className="border p-2 m-2"
+        <select
+          value={radius}
+          onChange={(e) => setRadius(e.target.value)}
+          className="border p-2 rounded w-full sm:w-1/4"
         >
           <option value="1">1 mile</option>
           <option value="5">5 miles</option>
           <option value="10">10 miles</option>
         </select>
-        <button type="submit" className="bg-blue-500 text-white p-2 m-2">
+        <button type="submit" className="bg-blue-600 text-white p-2 rounded w-full sm:w-auto">
           Search
         </button>
       </form>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <h3 className="text-lg font-bold">Available Offices</h3>
+          <h3 className="text-xl font-bold mb-2">Available Offices</h3>
           <ul>
             {offices.map((office) => (
-              <li key={office.id} className="border p-2 m-2">
-                <h4 className="font-bold">{office.name}</h4>
-                <p>{office.address}</p>
-                <p>Available Slots:</p>
-                <ul>
-                  {office.availableSlots && office.availableSlots.map((slot, idx) => (
-                    <li key={idx}>
-                      <button 
-                        onClick={() => {
-                          setSelectedOffice(office);
-                          setSelectedSlot(slot);
-                        }}
-                        className="text-blue-500 underline"
-                      >
-                        {slot}
-                      </button>
-                    </li>
-                  ))}
+              <li key={office.id} className="border rounded p-4 mb-2 hover:shadow transition">
+                <h4 className="font-bold text-lg">{office.name}</h4>
+                <p className="text-sm">{office.address}</p>
+                <p className="mt-2 font-semibold">Available Slots:</p>
+                <ul className="mt-1 space-y-1">
+                  {office.availableSlots &&
+                    office.availableSlots.map((slot, idx) => (
+                      <li key={idx}>
+                        <button
+                          onClick={() => {
+                            setSelectedOffice(office);
+                            setSelectedSlot(slot);
+                          }}
+                          className="text-blue-600 underline"
+                        >
+                          {slot}
+                        </button>
+                      </li>
+                    ))}
                 </ul>
               </li>
             ))}
           </ul>
         </div>
         <div>
-          <MapView 
-            offices={offices} 
+          <MapView
+            offices={offices}
             onMarkerClick={(office, slot) => {
               setSelectedOffice(office);
               setSelectedSlot(slot);
-            }} 
+            }}
           />
         </div>
       </div>
       {selectedOffice && selectedSlot && (
-        <AppointmentBooking 
-          office={selectedOffice} 
-          slot={selectedSlot} 
-          onClose={() => { setSelectedOffice(null); setSelectedSlot(null); }} 
+        <AppointmentBooking
+          office={selectedOffice}
+          slot={selectedSlot}
+          onClose={() => {
+            setSelectedOffice(null);
+            setSelectedSlot(null);
+          }}
         />
       )}
     </div>
