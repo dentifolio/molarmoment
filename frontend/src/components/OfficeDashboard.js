@@ -15,6 +15,7 @@ const OfficeDashboard = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmationMessage, setConfirmationMessage] = useState('');
+  const [appointments, setAppointments] = useState([]);
 
   // Socket.io connection
   const socket = io('https://findopendentist.onrender.com');
@@ -48,7 +49,7 @@ const OfficeDashboard = () => {
     });
     socket.on('appointmentBooked', (data) => {
       if (data.officeId === officeId) {
-        alert(`New appointment booked by ${data.patientName} for ${data.slot}`);
+        setAppointments((prevAppointments) => [...prevAppointments, data]);
       }
     });
     return () => {
@@ -77,6 +78,19 @@ const OfficeDashboard = () => {
     }
   };
 
+  const generateTimeSlots = () => {
+    const startHour = 5; // 5 AM
+    const endHour = 20; // 8 PM
+    const slots = [];
+
+    for (let hour = startHour; hour <= endHour; hour++) {
+      const timeString = hour < 12 ? `${hour}:00 AM` : `${hour === 12 ? 12 : hour - 12}:00 PM`;
+      slots.push(timeString);
+    }
+
+    return slots;
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -86,7 +100,7 @@ const OfficeDashboard = () => {
       <h2 className="text-xl font-bold mb-4">Office Dashboard</h2>
       <p>Click a time slot to toggle its availability.</p>
       <div className="grid grid-cols-3 gap-4">
-        {['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00'].map((slot) => (
+        {generateTimeSlots().map((slot) => (
           <button
             key={slot}
             onClick={() => toggleSlot(slot)}
@@ -97,6 +111,21 @@ const OfficeDashboard = () => {
         ))}
       </div>
       {confirmationMessage && <p className="mt-4 text-green-600">{confirmationMessage}</p>}
+      <h3 className="text-lg font-bold mt-6">Booking Board</h3>
+      <div className="mt-4">
+        {appointments.length === 0 ? (
+          <p>No bookings yet.</p>
+        ) : (
+          <ul>
+            {appointments.map((appointment, index) => (
+              <li key={index} className="mb-2 p-2 border rounded">
+                <p><strong>Patient Name:</strong> {appointment.patientName}</p>
+                <p><strong>Time Slot:</strong> {appointment.slot}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };
