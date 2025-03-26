@@ -6,6 +6,7 @@ function MapView({ offices, onMarkerClick }) {
   const markers = useRef([]);
 
   useEffect(() => {
+    // Load the Google Maps script if not already loaded.
     const loadGoogleMaps = () => {
       if (!window.google) {
         const script = document.createElement('script');
@@ -19,9 +20,10 @@ function MapView({ offices, onMarkerClick }) {
       }
     };
 
+    // Initialize the map with a center point.
     const initMap = () => {
-      // Center the map on the first office that has valid coordinates, or use a default center.
-      let center = { lat: 39.8283, lng: -98.5795 }; // Center of the US
+      // Set a default center (center of the US). If any office has valid coordinates, center near the first one.
+      let center = { lat: 39.8283, lng: -98.5795 };
       if (offices && offices.length > 0) {
         const firstWithCoords = offices.find(o => o.lat && o.lng);
         if (firstWithCoords) {
@@ -30,18 +32,21 @@ function MapView({ offices, onMarkerClick }) {
       }
 
       googleMap.current = new window.google.maps.Map(mapRef.current, {
-        center: center,
-        zoom: 10, // Adjust zoom level as needed for a "nearby" view.
+        center,
+        zoom: 10, // Adjust the zoom level as needed.
       });
       updateMarkers();
     };
 
+    // Update markers on the map.
     const updateMarkers = () => {
       // Remove any existing markers.
       markers.current.forEach(marker => marker.setMap(null));
       markers.current = [];
 
-      // Add markers for each office that has valid lat/lng and available slots.
+      // Loop through the offices and add a marker if:
+      // 1. The office has valid latitude and longitude.
+      // 2. The office has available appointment slots.
       offices.forEach(office => {
         if (office.lat && office.lng && office.availableSlots && office.availableSlots.length > 0) {
           const marker = new window.google.maps.Marker({
@@ -50,7 +55,7 @@ function MapView({ offices, onMarkerClick }) {
             title: office.name,
           });
           marker.addListener('click', () => {
-            // Call the provided callback (e.g., to open a booking modal)
+            // Trigger callback when a marker is clicked (e.g., to open booking modal).
             onMarkerClick(office, office.availableSlots[0]);
           });
           markers.current.push(marker);
@@ -60,7 +65,7 @@ function MapView({ offices, onMarkerClick }) {
 
     loadGoogleMaps();
 
-    // Update markers if the offices array changes.
+    // If the offices array changes, update markers on the map.
     if (window.google && googleMap.current) {
       updateMarkers();
     }
