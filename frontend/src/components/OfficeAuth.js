@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 
 function OfficeAuth({ mode }) {
@@ -11,16 +11,25 @@ function OfficeAuth({ mode }) {
     website: '',
     zipCode: '',
     lat: null,
-    lng: null,
+    lng: null
   });
 
   const addressInputRef = useRef(null);
 
   useEffect(() => {
-    if (window.google) {
+    // Wait until the address input ref is set and the google script is loaded
+    if (addressInputRef.current && window.google) {
+      // Ensure that the ref is indeed an HTMLInputElement
+      if (!(addressInputRef.current instanceof HTMLInputElement)) {
+        console.error("The address ref is not an HTMLInputElement:", addressInputRef.current);
+        return;
+      }
       const autocomplete = new window.google.maps.places.Autocomplete(
         addressInputRef.current,
-        { types: ['geocode'], componentRestrictions: { country: 'us' } }
+        {
+          types: ['geocode'], // restrict to addresses
+          componentRestrictions: { country: 'us' } // optional: restrict to specific country
+        }
       );
 
       autocomplete.addListener('place_changed', () => {
@@ -29,21 +38,22 @@ function OfficeAuth({ mode }) {
           const lat = place.geometry.location.lat();
           const lng = place.geometry.location.lng();
           const formattedAddress = place.formatted_address;
-          setFormData((prev) => ({
+          setFormData(prev => ({
             ...prev,
             address: formattedAddress,
             lat,
-            lng,
+            lng
           }));
         } else {
-          setFormData((prev) => ({
+          // Fallback in case geometry isn't available
+          setFormData(prev => ({
             ...prev,
-            address: addressInputRef.current.value,
+            address: addressInputRef.current.value
           }));
         }
       });
     }
-  }, []);
+  }, [addressInputRef.current]); // The effect will run when the ref is attached
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -51,14 +61,11 @@ function OfficeAuth({ mode }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Replace the URL with your backend endpoint
+    const endpoint = mode === 'signup' ? '/signup' : '/login';
     try {
-      const endpoint = mode === 'signup' ? '/signup' : '/login';
-      const url = `https://findopendentist.onrender.com${endpoint}`;
-      const response = await axios.post(url, formData);
+      const response = await axios.post(`https://findopendentist.onrender.com${endpoint}`, formData);
       alert('Success: ' + JSON.stringify(response.data));
-      if (mode === 'login') {
-        localStorage.setItem('officeId', response.data.id);
-      }
     } catch (error) {
       console.error(error);
       alert('Error during authentication');
@@ -66,73 +73,66 @@ function OfficeAuth({ mode }) {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white shadow-lg rounded p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        {mode === 'signup' ? 'Office Signup' : 'Office Login'}
-      </h2>
-      <form onSubmit={handleSubmit}>
-        {mode === 'signup' && (
-          <>
-            <input
-              type="text"
-              name="name"
-              placeholder="Office Name"
-              onChange={handleChange}
-              className="w-full border p-2 mb-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              name="phone"
-              placeholder="Phone"
-              onChange={handleChange}
-              className="w-full border p-2 mb-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              ref={addressInputRef}
-              name="address"
-              placeholder="Address"
-              onChange={handleChange}
-              className="w-full border p-2 mb-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              name="website"
-              placeholder="Website"
-              onChange={handleChange}
-              className="w-full border p-2 mb-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              name="zipCode"
-              placeholder="ZIP Code"
-              onChange={handleChange}
-              className="w-full border p-2 mb-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </>
-        )}
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-          className="w-full border p-2 mb-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          className="w-full border p-2 mb-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition"
-        >
-          {mode === 'signup' ? 'Sign Up' : 'Login'}
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4">
+      {mode === 'signup' && (
+        <>
+          <input
+            type="text"
+            name="name"
+            placeholder="Office Name"
+            onChange={handleChange}
+            className="border p-2 m-2 w-full"
+          />
+          <input
+            type="text"
+            name="phone"
+            placeholder="Phone"
+            onChange={handleChange}
+            className="border p-2 m-2 w-full"
+          />
+          {/* This input will use Google Places Autocomplete */}
+          <input
+            type="text"
+            ref={addressInputRef}
+            name="address"
+            placeholder="Address"
+            onChange={handleChange}
+            className="border p-2 m-2 w-full"
+          />
+          <input
+            type="text"
+            name="website"
+            placeholder="Website"
+            onChange={handleChange}
+            className="border p-2 m-2 w-full"
+          />
+          <input
+            type="text"
+            name="zipCode"
+            placeholder="ZIP Code"
+            onChange={handleChange}
+            className="border p-2 m-2 w-full"
+          />
+        </>
+      )}
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        onChange={handleChange}
+        className="border p-2 m-2 w-full"
+      />
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        onChange={handleChange}
+        className="border p-2 m-2 w-full"
+      />
+      <button type="submit" className="bg-blue-500 text-white p-2 m-2 w-full">
+        {mode === 'signup' ? 'Sign Up' : 'Login'}
+      </button>
+    </form>
   );
 }
 
