@@ -95,13 +95,10 @@ function PatientSearch() {
           </ul>
         </div>
         <div>
-          <MapView
-            offices={offices}
-            onMarkerClick={(office, slot) => {
-              setSelectedOffice(office);
-              setSelectedSlot(slot);
-            }}
-          />
+          <MapView offices={offices} onMarkerClick={(office, slot) => {
+            setSelectedOffice(office);
+            setSelectedSlot(slot);
+          }} />
         </div>
       </div>
       {selectedOffice && selectedSlot && (
