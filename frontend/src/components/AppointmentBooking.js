@@ -6,9 +6,11 @@ function AppointmentBooking({ office, slot, onClose }) {
   const [contact, setContact] = useState('');
   const [reason, setReason] = useState('');
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const [loading, setLoading] = useState(false); // Loading state
 
   const handleBooking = async (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading state
     try {
       await axios.post('https://findopendentist.onrender.com/book-slot', {
         officeId: office.id,
@@ -20,7 +22,9 @@ function AppointmentBooking({ office, slot, onClose }) {
       setBookingConfirmed(true);
     } catch (error) {
       console.error(error);
-      alert('Error booking appointment');
+      alert('Error booking appointment. Please try again later.'); // Improved error message
+    } finally {
+      setLoading(false); // Reset loading state
     }
   };
 
@@ -31,12 +35,7 @@ function AppointmentBooking({ office, slot, onClose }) {
           <div className="text-center">
             <h2 className="text-2xl font-bold text-green-600 mb-4">Appointment Confirmed!</h2>
             <p className="mb-4">You're booked at <strong>{office.name}</strong> for <strong>{slot}</strong>.</p>
-            <button
-              onClick={onClose}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl"
-            >
-              Done
-            </button>
+            <button onClick={onClose} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl">Done</button>
           </div>
         ) : (
           <>
@@ -53,6 +52,7 @@ function AppointmentBooking({ office, slot, onClose }) {
                   onChange={(e) => setPatientName(e.target.value)}
                   className="w-full border rounded-lg p-2"
                   required
+                  disabled={loading}
                 />
               </div>
               <div>
@@ -63,6 +63,7 @@ function AppointmentBooking({ office, slot, onClose }) {
                   onChange={(e) => setContact(e.target.value)}
                   className="w-full border rounded-lg p-2"
                   required
+                  disabled={loading}
                 />
               </div>
               <div>
@@ -72,18 +73,21 @@ function AppointmentBooking({ office, slot, onClose }) {
                   onChange={(e) => setReason(e.target.value)}
                   className="w-full border rounded-lg p-2"
                   rows={3}
+                  disabled={loading}
                 ></textarea>
               </div>
               <button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-xl"
+                disabled={loading}
               >
-                Confirm Booking
+                {loading ? 'Booking...' : 'Confirm Booking'}
               </button>
             </form>
             <button
               onClick={onClose}
               className="w-full mt-3 text-sm text-gray-500 hover:text-gray-700"
+              disabled={loading}
             >
               Cancel
             </button>
