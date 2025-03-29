@@ -1,17 +1,23 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import MainPage from './components/MainPage';
-import './App.css'; // Assuming you have some global styles
+import SignUp from './components/SignUp';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
+import Search from './components/Search';
 
-function App() {
+const App = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<MainPage />} />
-        {/* Add other routes here if needed */}
-      </Routes>
+      <Switch>
+        <Route exact path="/" component={MainPage} />
+        <Route path="/signup" component={SignUp} />
+        <Route path="/login" component={Login} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/search" component={Search} />
+      </Switch>
     </Router>
   );
-}
+};
 
 export default App;
