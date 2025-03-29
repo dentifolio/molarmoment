@@ -1,7 +1,15 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 const Layout = ({ children }) => {
+  const navLinks = [
+    { path: '/', label: 'Home' },
+    { path: '/signup', label: 'Sign Up' },
+    { path: '/login', label: 'Login' },
+    { path: '/dashboard', label: 'Dashboard' },
+    { path: '/search', label: 'Find a Dentist' },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <header className="bg-blue-600 text-white shadow">
@@ -9,31 +17,13 @@ const Layout = ({ children }) => {
           <h1 className="text-2xl font-bold">FindOpenDentist</h1>
           <nav>
             <ul className="flex space-x-4">
-              <li>
-                <Link to="/" className="hover:underline">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/signup" className="hover:underline">
-                  Sign Up
-                </Link>
-              </li>
-              <li>
-                <Link to="/login" className="hover:underline">
-                  Login
-                </Link>
-              </li>
-              <li>
-                <Link to="/dashboard" className="hover:underline">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link to="/search" className="hover:underline">
-                  Find a Dentist
-                </Link>
-              </li>
+              {navLinks.map((link) => (
+                <li key={link.path}>
+                  <NavLink to={link.path} className="hover:underline" activeClassName="font-bold">
+                    {link.label}
+                  </NavLink>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
