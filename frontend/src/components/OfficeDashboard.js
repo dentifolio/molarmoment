@@ -11,41 +11,35 @@ const OfficeDashboard = () => {
 
   const officeId = storedOfficeId;
   const [availableSlots, setAvailableSlots] = useState([]);
+  const [bookedAppointments, setBookedAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmationMessage, setConfirmationMessage] = useState('');
-  const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
     const socket = io('https://findopendentist.onrender.com');
 
-    const fetchAvailability = async () => {
+    const fetchOfficeData = async () => {
       setLoading(true);
       try {
         const res = await axios.get('https://findopendentist.onrender.com/active-offices');
         const office = res.data.find((o) => o.id === officeId);
-        if (office && office.availableSlots) {
-          setAvailableSlots(office.availableSlots);
-        } else {
-          setAvailableSlots([]);
+        if (office) {
+          setAvailableSlots(office.availableSlots || []);
+          const sortedAppointments = (office.bookedAppointments || []).sort((a, b) => {
+            const timeA = new Date(a.bookedAt);
+            const timeB = new Date(b.bookedAt);
+            return timeA - timeB;
+          });
+          setBookedAppointments(sortedAppointments);
         }
       } catch (error) {
-        console.error('Error fetching availability:', error);
+        console.error('Error fetching office data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    const fetchAppointments = async () => {
-      try {
-        const res = await axios.get(`https://findopendentist.onrender.com/appointments?officeId=${officeId}`);
-        setAppointments(res.data);
-      } catch (error) {
-        console.error('Error fetching appointments:', error);
-      }
-    };
-
-    fetchAvailability();
-    fetchAppointments();
+    fetchOfficeData();
 
     socket.on('availabilityUpdated', (data) => {
       if (data.officeId === officeId && data.availableSlots) {
@@ -55,7 +49,7 @@ const OfficeDashboard = () => {
 
     socket.on('appointmentBooked', (data) => {
       if (data.officeId === officeId) {
-        setAppointments((prev) => [...prev, data]);
+        setBookedAppointments((prev) => [...prev, data].sort((a, b) => new Date(a.bookedAt) - new Date(b.bookedAt)));
       }
     });
 
@@ -65,7 +59,7 @@ const OfficeDashboard = () => {
   }, [officeId]);
 
   const toggleSlot = async (slot) => {
-    let updatedSlots = availableSlots.includes(slot)
+    const updatedSlots = availableSlots.includes(slot)
       ? availableSlots.filter((s) => s !== slot)
       : [...availableSlots, slot];
 
@@ -95,38 +89,47 @@ const OfficeDashboard = () => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-md mx-auto p-4">
-      <h2 className="text-xl font-bold mb-4">Office Dashboard</h2>
-      <p>Click a time slot to toggle its availability.</p>
-      <div className="grid grid-cols-3 gap-4">
+    <div className="max-w-2xl mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4">Office Dashboard</h2>
+
+      {confirmationMessage && (
+        <div className="bg-green-100 text-green-800 p-2 rounded mb-4">
+          {confirmationMessage}
+        </div>
+      )}
+
+      <h3 className="text-lg font-semibold mb-2">Manage Availability</h3>
+      <div className="grid grid-cols-3 gap-2 mb-6">
         {generateTimeSlots().map((slot) => (
           <button
             key={slot}
+            className={`p-2 rounded-lg border text-sm font-medium ${
+              availableSlots.includes(slot)
+                ? 'bg-green-500 text-white'
+                : 'bg-gray-100 text-gray-700'
+            }`}
             onClick={() => toggleSlot(slot)}
-            className={`m-2 p-2 ${availableSlots.includes(slot) ? 'bg-green-500' : 'bg-red-500'} text-white`}
           >
             {slot}
           </button>
         ))}
       </div>
-      {confirmationMessage && <p className="mt-4 text-green-600">{confirmationMessage}</p>}
 
-      <h3 className="text-lg font-bold mt-6">Booking Board</h3>
-      <div className="mt-4">
-        {appointments.length === 0 ? (
-          <p>No bookings yet.</p>
-        ) : (
-          <ul>
-            {appointments.map((appointment, index) => (
-              <li key={index} className="mb-2 p-2 border rounded">
-                <p><strong>Patient Name:</strong> {appointment.patientName}</p>
-                <p><strong>Contact Information:</strong> {appointment.contactInfo}</p>
-                <p><strong>Time Slot:</strong> {appointment.slot}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <h3 className="text-lg font-semibold mb-2">Booked Appointments</h3>
+      {bookedAppointments.length === 0 ? (
+        <p className="text-gray-500">No appointments booked yet.</p>
+      ) : (
+        <ul className="space-y-3">
+          {bookedAppointments.map((appt, index) => (
+            <li key={index} className="border p-3 rounded-lg shadow">
+              <p className="font-medium">{appt.patientName}</p>
+              <p className="text-sm text-gray-600">Time: {appt.slot}</p>
+              <p className="text-sm text-gray-600">Contact: {appt.contact}</p>
+              {appt.reason && <p className="text-sm text-gray-600">Reason: {appt.reason}</p>}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
