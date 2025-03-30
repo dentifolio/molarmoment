@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import MainPage from './components/MainPage';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
@@ -9,13 +9,13 @@ import PatientSearch from './components/PatientSearch';  // Updated import
 const App = () => {
   return (
     <Router>
-      <Switch>
-        <Route exact path="/" component={MainPage} />
-        <Route path="/signup" component={SignUp} />
-        <Route path="/login" component={Login} />
-        <Route path="/dashboard" component={OfficeDashboard} />
-        <Route path="/search" component={PatientSearch} />  // Updated route
-      </Switch>
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<OfficeDashboard />} />
+        <Route path="/search" element={<PatientSearch />} />  // Updated route
+      </Routes>
     </Router>
   );
 };
