@@ -20,16 +20,13 @@ function MapView({ offices, onMarkerClick }) {
     };
 
     const initMap = () => {
-      let center = { lat: 39.8283, lng: -98.5795 };
-      if (offices && offices.length > 0) {
-        const firstWithCoords = offices.find(o => o.lat && o.lng);
-        if (firstWithCoords) {
-          center = { lat: firstWithCoords.lat, lng: firstWithCoords.lng };
-        }
-      }
+      const defaultCenter = { lat: 39.8283, lng: -98.5795 };
+      const firstWithCoords = offices.find(o => o.lat && o.lng);
+      const center = firstWithCoords ? { lat: firstWithCoords.lat, lng: firstWithCoords.lng } : defaultCenter;
+
       googleMap.current = new window.google.maps.Map(mapRef.current, {
         center,
-        zoom: 10,
+        zoom: firstWithCoords ? 13 : 5,
       });
       updateMarkers();
     };
@@ -37,19 +34,32 @@ function MapView({ offices, onMarkerClick }) {
     const updateMarkers = () => {
       markers.current.forEach(marker => marker.setMap(null));
       markers.current = [];
+
+      let bounds = new window.google.maps.LatLngBounds();
+      let validMarkerCount = 0;
+
       offices.forEach(office => {
         if (office.lat && office.lng && office.availableSlots && office.availableSlots.length > 0) {
+          const position = { lat: office.lat, lng: office.lng };
           const marker = new window.google.maps.Marker({
-            position: { lat: office.lat, lng: office.lng },
+            position,
             map: googleMap.current,
             title: office.name,
           });
+
           marker.addListener('click', () => {
             onMarkerClick(office, office.availableSlots[0]);
           });
+
           markers.current.push(marker);
+          bounds.extend(position);
+          validMarkerCount++;
         }
       });
+
+      if (validMarkerCount > 0) {
+        googleMap.current.fitBounds(bounds);
+      }
     };
 
     loadGoogleMaps();
