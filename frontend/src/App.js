@@ -4,7 +4,7 @@ import MainPage from './components/MainPage';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import OfficeDashboard from './components/OfficeDashboard';
-import Search from './components/Search';
+import PatientSearch from './components/PatientSearch';  // Updated import
 
 const App = () => {
   return (
@@ -14,7 +14,7 @@ const App = () => {
         <Route path="/signup" component={SignUp} />
         <Route path="/login" component={Login} />
         <Route path="/dashboard" component={OfficeDashboard} />
-        <Route path="/search" component={Search} />
+        <Route path="/search" component={PatientSearch} />  // Updated route
       </Switch>
     </Router>
   );
