@@ -1,158 +1,69 @@
 const express = require('express');
-const cors = require('cors');
 const bodyParser = require('body-parser');
-const admin = require('firebase-admin');
-const http = require('http');
-const { Server } = require('socket.io');
-const cron = require('node-cron');
-
-// Initialize Firebase Admin with your service account credentials.
-const serviceAccount = require('./serviceAccountKey.json');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-const db = admin.firestore();
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
-app.use(cors());
 app.use(bodyParser.json());
 
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: "*" }
-});
+// Use the dentists.json file (renamed from offices.json)
+const dentistsDataPath = path.join(__dirname, 'dentists.json');
 
-// Socket.io connection – broadcast availability updates and appointment bookings.
-io.on('connection', (socket) => {
-  console.log('Client connected: ' + socket.id);
-});
+// Utility function to read dentist data
+const readDentistsData = () => {
+  const data = fs.readFileSync(dentistsDataPath);
+  return JSON.parse(data);
+};
 
-// POST /signup – Office registration.
-app.post('/signup', async (req, res) => {
+// Utility function to write dentist data
+const writeDentistsData = (data) => {
+  fs.writeFileSync(dentistsDataPath, JSON.stringify(data, null, 2));
+};
+
+// GET endpoint: Retrieve all dentists with their availabilities
+app.get('/api/dentists', (req, res) => {
   try {
-    const { email, password, name, phone, address, website, zipCode, lat, lng } = req.body;
-    const newOffice = { 
-      email, 
-      password, 
-      name, 
-      phone, 
-      address, 
-      website, 
-      zipCode, 
-      lat: lat || null, 
-      lng: lng || null,
-      availableSlots: [] 
-    };
-    const docRef = await db.collection('offices').add(newOffice);
-    res.status(201).json({ id: docRef.id, ...newOffice });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const dentists = readDentistsData();
+    res.json(dentists);
+  } catch (err) {
+    res.status(500).json({ error: 'Unable to read dentist data.' });
   }
 });
 
-// POST /login – Login validation.
-app.post('/login', async (req, res) => {
+// POST endpoint: Book an appointment for a dentist
+app.post('/api/appointments', (req, res) => {
+  const { dentistId, date, time } = req.body;
+  if (!dentistId || !date || !time) {
+    return res.status(400).json({ success: false, message: 'Missing required fields.' });
+  }
+
   try {
-    const { email, password } = req.body;
-    const snapshot = await db.collection('offices')
-      .where('email', '==', email)
-      .where('password', '==', password)
-      .get();
-    if (snapshot.empty) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    const dentists = readDentistsData();
+    const dentist = dentists.find(d => d.id === dentistId);
+
+    if (!dentist) {
+      return res.status(404).json({ success: false, message: 'Dentist not found.' });
     }
-    let office;
-    snapshot.forEach(doc => {
-      office = { id: doc.id, ...doc.data() };
-    });
-    res.status(200).json(office);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
-// GET /active-offices – Return offices with available slots.
-app.get('/active-offices', async (req, res) => {
-  try {
-    const snapshot = await db.collection('offices').where('availableSlots', '!=', []).get();
-    let offices = [];
-    snapshot.forEach(doc => {
-      offices.push({ id: doc.id, ...doc.data() });
-    });
-    res.status(200).json(offices);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /search-offices – Filtered search by ZIP code.
-app.get('/search-offices', async (req, res) => {
-  try {
-    const { zipCode, radius } = req.query;
-    const snapshot = await db.collection('offices').where('zipCode', '==', zipCode).get();
-    let offices = [];
-    snapshot.forEach(doc => {
-      offices.push({ id: doc.id, ...doc.data() });
-    });
-    res.status(200).json(offices);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// POST /book-slot – Patient booking.
-app.post('/book-slot', async (req, res) => {
-  try {
-    const { officeId, slot, patientName, contact, reason } = req.body;
-    const newAppointment = { officeId, slot, patientName, contact, reason, bookedAt: new Date() };
-    await db.collection('appointments').add(newAppointment);
-    const officeRef = db.collection('offices').doc(officeId);
-    const officeDoc = await officeRef.get();
-    if (officeDoc.exists) {
-      const data = officeDoc.data();
-      const updatedSlots = data.availableSlots.filter(s => s !== slot);
-      await officeRef.update({ availableSlots: updatedSlots });
-      io.emit('availabilityUpdated', { officeId, availableSlots: updatedSlots });
-      io.emit('appointmentBooked', { officeId, slot, patientName });
-      res.status(200).json({ message: 'Appointment booked' });
-    } else {
-      res.status(404).json({ error: 'Office not found' });
+    const availableSlots = dentist.availability[date];
+    if (!availableSlots || !availableSlots.includes(time)) {
+      return res.status(400).json({ success: false, message: 'Time slot not available.' });
     }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+
+    // Remove the booked time slot
+    dentist.availability[date] = availableSlots.filter(slot => slot !== time);
+
+    // Persist the updated data
+    writeDentistsData(dentists);
+
+    res.json({ success: true, message: 'Appointment booked successfully.' });
+
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Error booking appointment.' });
   }
 });
 
-// POST /update-availability – Office updates their slots.
-app.post('/update-availability', async (req, res) => {
-  try {
-    const { officeId, availableSlots } = req.body;
-    const officeRef = db.collection('offices').doc(officeId);
-    await officeRef.update({ availableSlots });
-    io.emit('availabilityUpdated', { officeId, availableSlots });
-    res.status(200).json({ message: 'Availability updated', availableSlots });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Daily reset job to clear available slots.
-cron.schedule('0 0 * * *', async () => {
-  console.log('Resetting appointment slots...');
-  try {
-    const snapshot = await db.collection('offices').get();
-    snapshot.forEach(async (doc) => {
-      await doc.ref.update({ availableSlots: [] });
-    });
-    io.emit('availabilityUpdated', { message: 'Daily reset completed' });
-  } catch (error) {
-    console.error('Error resetting slots:', error);
-  }
-});
-
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
