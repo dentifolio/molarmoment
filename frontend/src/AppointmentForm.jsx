@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './AppointmentForm.css';  // Add CSS for styling
 
 const AppointmentForm = () => {
   const [dentists, setDentists] = useState([]);
@@ -9,7 +10,6 @@ const AppointmentForm = () => {
   const [selectedTime, setSelectedTime] = useState('');
   const [message, setMessage] = useState('');
 
-  // Fetch dentist data when component mounts
   useEffect(() => {
     axios.get('/api/dentists')
       .then(response => {
@@ -18,7 +18,6 @@ const AppointmentForm = () => {
       .catch(err => console.error('Error fetching dentists:', err));
   }, []);
 
-  // Update available time slots when the selected dentist or date changes
   useEffect(() => {
     if (selectedDentist && date) {
       const dentist = dentists.find(d => d.id === selectedDentist);
@@ -35,7 +34,6 @@ const AppointmentForm = () => {
     axios.post('/api/appointments', { dentistId: selectedDentist, date, time: selectedTime })
       .then(response => {
         setMessage(response.data.message);
-        // Refresh dentist data after a successful booking
         return axios.get('/api/dentists');
       })
       .then(response => setDentists(response.data))
@@ -45,11 +43,11 @@ const AppointmentForm = () => {
   };
 
   return (
-    <div>
-      <h1>Book a Dental Appointment</h1>
-      {message && <p>{message}</p>}
+    <div className="appointment-form">
+      <h2>Book a Dental Appointment</h2>
+      {message && <p className="message">{message}</p>}
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className="form-group">
           <label>Select Dentist:</label>
           <select
             value={selectedDentist}
@@ -63,7 +61,7 @@ const AppointmentForm = () => {
             ))}
           </select>
         </div>
-        <div>
+        <div className="form-group">
           <label>Select Date:</label>
           <input
             type="date"
@@ -71,7 +69,7 @@ const AppointmentForm = () => {
             onChange={(e) => setDate(e.target.value)}
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Select Time Slot:</label>
           <select
             value={selectedTime}
@@ -83,7 +81,7 @@ const AppointmentForm = () => {
             ))}
           </select>
         </div>
-        <button type="submit">Book Appointment</button>
+        <button type="submit" className="submit-button">Book Appointment</button>
       </form>
     </div>
   );
