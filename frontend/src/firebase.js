@@ -1,10 +1,9 @@
-// firebaseConfig.js
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import firebase from 'firebase/app';
+import 'firebase/auth';
+import 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCjoQd01g2bFuxNdph5KBmbxAh3jHnKvHA",
+  apiKey: "AIzaSyCjoQd01g2bFuxNdph5KBmbxAh3jHnKvHA",
   authDomain: "findopendentist.firebaseapp.com",
   projectId: "findopendentist",
   storageBucket: "findopendentist.firebasestorage.app",
@@ -13,8 +12,12 @@ const firebaseConfig = {
   measurementId: "G-5YZSB81D2J"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export default app;
+firebase.initializeApp(firebaseConfig);
+
+export const auth = firebase.auth();
+export const db = firebase.firestore();
+
+// For Vercel: Use environment variables
+export const apiUrl = process.env.NODE_ENV === 'production' 
+  ? 'https://findopendentist.onrender.com' 
+  : 'http://localhost:3001';
