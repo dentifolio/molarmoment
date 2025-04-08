@@ -1,69 +1,93 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-const path = require('path');
+const admin = require('firebase-admin');
+const cors = require('cors');
+require('dotenv').config();
 
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
 const app = express();
-app.use(bodyParser.json());
 
-// Use the dentists.json file (renamed from offices.json)
-const dentistsDataPath = path.join(__dirname, 'dentists.json');
+app.use(cors());
+app.use(express.json());
 
-// Utility function to read dentist data
-const readDentistsData = () => {
-  const data = fs.readFileSync(dentistsDataPath);
-  return JSON.parse(data);
+// Authentication middleware
+const authenticate = async (req, res, next) => {
+  const token = req.headers.authorization?.split('Bearer ')[1];
+  if (!token) return res.status(401).send('Unauthorized');
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    req.user = decodedToken;
+    next();
+  } catch (error) {
+    res.status(401).send('Invalid token');
+  }
 };
 
-// Utility function to write dentist data
-const writeDentistsData = (data) => {
-  fs.writeFileSync(dentistsDataPath, JSON.stringify(data, null, 2));
+// API Routes
+app.get('/api/offices', async (req, res) => {
+  const { zip, radius } = req.query;
+  const snapshot = await db.collection('offices')
+    .where('availability', '!=', {})
+    .get();
+  res.json(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+});
+
+app.put('/api/office/availability', authenticate, async (req, res) => {
+  await db.collection('offices').doc(req.user.uid).update({
+    availability: req.body
+  });
+  res.sendStatus(200);
+});
+
+app.get('/api/office/profile', authenticate, async (req, res) => {
+  const doc = await db.collection('offices').doc(req.user.uid).get();
+  if (!doc.exists) {
+    await db.collection('offices').doc(req.user.uid).set({ availability: {} });
+    return res.json({ availability: {} });
+  }
+  res.json(doc.data());
+});
+
+app.put('/api/office/profile', authenticate, async (req, res) => {
+  await db.collection('offices').doc(req.user.uid).set(req.body, { merge: true });
+  res.sendStatus(200);
+});
+
+app.get('/api/office/bookings', authenticate, async (req, res) => {
+  const bookings = await db.collection('bookings')
+    .where('officeId', '==', req.user.uid)
+    .get();
+  res.json(bookings.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+});
+
+app.post('/api/book', async (req, res) => {
+  const { officeId, name, email, reason } = req.body;
+  const booking = { officeId, name, email, reason, timestamp: new Date() };
+  await db.collection('bookings').add(booking);
+  res.sendStatus(201);
+});
+
+// Daily reset
+const resetAvailability = async () => {
+  const offices = await db.collection('offices').get();
+  const batch = db.batch();
+  offices.forEach(doc => {
+    batch.update(doc.ref, { availability: {} });
+  });
+  await batch.commit();
 };
 
-// GET endpoint: Retrieve all dentists with their availabilities
-app.get('/api/dentists', (req, res) => {
-  try {
-    const dentists = readDentistsData();
-    res.json(dentists);
-  } catch (err) {
-    res.status(500).json({ error: 'Unable to read dentist data.' });
+setInterval(() => {
+  const now = new Date();
+  if (now.getHours() === 0 && now.getMinutes() === 0) {
+    resetAvailability();
   }
-});
-
-// POST endpoint: Book an appointment for a dentist
-app.post('/api/appointments', (req, res) => {
-  const { dentistId, date, time } = req.body;
-  if (!dentistId || !date || !time) {
-    return res.status(400).json({ success: false, message: 'Missing required fields.' });
-  }
-
-  try {
-    const dentists = readDentistsData();
-    const dentist = dentists.find(d => d.id === dentistId);
-
-    if (!dentist) {
-      return res.status(404).json({ success: false, message: 'Dentist not found.' });
-    }
-
-    const availableSlots = dentist.availability[date];
-    if (!availableSlots || !availableSlots.includes(time)) {
-      return res.status(400).json({ success: false, message: 'Time slot not available.' });
-    }
-
-    // Remove the booked time slot
-    dentist.availability[date] = availableSlots.filter(slot => slot !== time);
-
-    // Persist the updated data
-    writeDentistsData(dentists);
-
-    res.json({ success: true, message: 'Appointment booked successfully.' });
-
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Error booking appointment.' });
-  }
-});
+}, 60000);
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
