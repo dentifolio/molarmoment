@@ -1,21 +1,24 @@
 import React from 'react';
-import AppointmentForm from './AppointmentForm';
-import './App.css';  // Add CSS for styling
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import MapView from './pages/MapView';
+import OfficeDashboard from './pages/OfficeDashboard';
+import { AuthProvider } from './context/AuthContext';
 
-const App = () => {
+function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Book a Dental Appointment</h1>
-      </header>
-      <main>
-        <AppointmentForm />
-      </main>
-      <footer className="App-footer">
-        <p>&copy; 2025 Dentifolio. All rights reserved.</p>
-      </footer>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <div className="min-h-screen bg-gray-100">
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<MapView />} />
+            <Route path="/dashboard" element={<OfficeDashboard />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
   );
-};
+}
 
 export default App;
