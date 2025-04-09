@@ -1,9 +1,8 @@
-// vite.config.js
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  root: './', // Ensure this points to the directory containing index.html
+  root: './', // Adjust if index.html is in a subdirectory
   build: {
-    outDir: 'dist', // Output directory
+    outDir: 'dist',
   },
 });
