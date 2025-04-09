@@ -2,6 +2,7 @@ const express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors');
 require('dotenv').config();
+const path = require('path');
 
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
 
@@ -15,7 +16,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Authentication middleware
+// === AUTH MIDDLEWARE ===
 const authenticate = async (req, res, next) => {
   const token = req.headers.authorization?.split('Bearer ')[1];
   if (!token) return res.status(401).send('Unauthorized');
@@ -28,7 +29,7 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-// API Routes
+// === API ROUTES ===
 app.get('/api/offices', async (req, res) => {
   const { zip, radius } = req.query;
   const snapshot = await db.collection('offices')
@@ -66,13 +67,13 @@ app.get('/api/office/bookings', authenticate, async (req, res) => {
 });
 
 app.post('/api/book', async (req, res) => {
-  const { officeId, name, email, reason } = req.body;
-  const booking = { officeId, name, email, reason, timestamp: new Date() };
+  const { officeId, name, email, reason, selectedHour } = req.body;
+  const booking = { officeId, name, email, reason, selectedHour, timestamp: new Date() };
   await db.collection('bookings').add(booking);
   res.sendStatus(201);
 });
 
-// Daily reset
+// === DAILY RESET ===
 const resetAvailability = async () => {
   const offices = await db.collection('offices').get();
   const batch = db.batch();
@@ -89,5 +90,14 @@ setInterval(() => {
   }
 }, 60000);
 
+// === SERVE FRONTEND ===
+const frontendPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendPath));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
+// === START SERVER ===
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
