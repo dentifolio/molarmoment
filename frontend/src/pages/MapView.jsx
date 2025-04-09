@@ -1,3 +1,4 @@
+// Upgraded MapView.jsx
 import React, { useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { apiUrl } from '../firebase';
@@ -9,7 +10,7 @@ function MapView() {
   const [offices, setOffices] = useState([]);
   const [selectedOffice, setSelectedOffice] = useState(null);
 
-  const mapStyles = { height: "50vh", width: "100%" };
+  const mapStyles = { height: '50vh', width: '100%' };
   const defaultCenter = { lat: 37.0902, lng: -95.7129 };
 
   useEffect(() => {
@@ -67,8 +68,12 @@ function MapView() {
           </LoadScript>
         </div>
       </div>
+
       {selectedOffice && (
-        <BookingModal office={selectedOffice} onClose={() => setSelectedOffice(null)} />
+        <BookingModal
+          office={selectedOffice}
+          onClose={() => setSelectedOffice(null)}
+        />
       )}
     </div>
   );
