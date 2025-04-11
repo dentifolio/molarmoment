@@ -31,7 +31,6 @@ const authenticate = async (req, res, next) => {
 
 // === API ROUTES ===
 app.get('/api/offices', async (req, res) => {
-  const { zip, radius } = req.query;
   const snapshot = await db.collection('offices')
     .where('availability', '!=', {})
     .get();
@@ -68,7 +67,14 @@ app.get('/api/office/bookings', authenticate, async (req, res) => {
 
 app.post('/api/book', async (req, res) => {
   const { officeId, name, email, reason, selectedHour } = req.body;
-  const booking = { officeId, name, email, reason, selectedHour, timestamp: new Date() };
+  const booking = {
+    officeId,
+    name,
+    email,
+    reason,
+    selectedHour,
+    timestamp: new Date()
+  };
   await db.collection('bookings').add(booking);
   res.sendStatus(201);
 });
@@ -90,7 +96,7 @@ setInterval(() => {
   }
 }, 60000);
 
-// === SERVE FRONTEND ===
+// === SERVE FRONTEND (Vite built site) ===
 const frontendPath = path.join(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));
 
@@ -100,4 +106,6 @@ app.get('*', (req, res) => {
 
 // === START SERVER ===
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
