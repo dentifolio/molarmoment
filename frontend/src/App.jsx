@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import PublicMapView from './components/PublicMapView';
 import OfficeLogin from './components/OfficeLogin';
 import OfficeDashboard from './components/OfficeDashboard';
@@ -41,7 +41,21 @@ export default function App() {
 
 function PrivateRoute({ children }) {
   const [user, setUser] = useState(undefined);
-  useEffect(() => onAuthStateChanged(auth, setUser), []);
-  if (user === undefined) return <div>Loading...</div>;
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return unsubscribe;
+  }, []);
+
+  if (user === undefined) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
   return user ? children : <Navigate to="/login" replace />;
 }
