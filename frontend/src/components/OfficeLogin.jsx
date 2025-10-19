@@ -54,7 +54,6 @@ export default function OfficeLogin() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const userId = userCredential.user.uid;
 
-      // Create office document in Firestore
       await setDoc(doc(db, 'offices', userId), {
         name: officeName,
         email: email,
@@ -86,7 +85,6 @@ export default function OfficeLogin() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-blue-600 mb-2">
             Find Open Dentist
@@ -96,7 +94,6 @@ export default function OfficeLogin() {
           </p>
         </div>
 
-        {/* Login/Signup Card */}
         <div className="bg-white rounded-lg shadow-md p-8">
           <form onSubmit={handleSubmit}>
             {isSignup && (

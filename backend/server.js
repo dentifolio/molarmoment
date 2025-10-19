@@ -28,14 +28,12 @@ app.get('/api/offices', async (req, res) => {
         lng: officeData.lng || 0
       };
 
-      // Fetch availability
       const availSnap = await db
         .collection('offices')
         .doc(doc.id)
         .collection('availability')
         .get();
 
-      // Fetch bookings
       const bookingsSnap = await db
         .collection('offices')
         .doc(doc.id)
@@ -68,7 +66,6 @@ app.post('/api/book', async (req, res) => {
   }
 
   try {
-    // Check if slot exists in availability
     const availRef = db
       .collection('offices')
       .doc(officeId)
@@ -80,7 +77,6 @@ app.post('/api/book', async (req, res) => {
       return res.status(400).json({ error: 'Slot not available' });
     }
 
-    // Check if slot is already booked
     const bookingsRef = db
       .collection('offices')
       .doc(officeId)
@@ -94,7 +90,6 @@ app.post('/api/book', async (req, res) => {
       return res.status(400).json({ error: 'Slot already booked' });
     }
 
-    // Create booking
     await bookingsRef.add({
       slot: time,
       patientName,
@@ -110,7 +105,7 @@ app.post('/api/book', async (req, res) => {
   }
 });
 
-// Get bookings for an office (for dashboard)
+// Get bookings for an office
 app.get('/api/offices/:officeId/bookings', async (req, res) => {
   const { officeId } = req.params;
 

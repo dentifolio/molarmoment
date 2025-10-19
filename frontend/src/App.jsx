@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import PublicMapView from './components/PublicMapView';
 import OfficeLogin from './components/OfficeLogin';
 import OfficeDashboard from './components/OfficeDashboard';
