@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Automated Fix Script for MolarMoment / FindOpenDentist
+# Automated Fix Script for MolarMoment / FindOpenDentistu
 # This script will backup your code and apply all fixes
 
 set -e  # Exit on any error
